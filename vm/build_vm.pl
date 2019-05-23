@@ -21,7 +21,7 @@ $UBUNTU_ISO="c:/vm/ubuntu-16.04.4-desktop-amd64.iso";
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
 $VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
 
-$VM_SHARED_FOLDER="d:/bwhitlock/scripted-vbox";
+#$VM_SHARED_FOLDER="d:/bwhitlock/scripted-vbox";
 $VM_DOWNLOADS="d:/bwhitlock/downloads";
 
 sub vm_is_running
@@ -165,12 +165,12 @@ sub finalconfig
             "--medium",     "none",
         );
 
-    system ($VBOXMANAGE, "sharedfolder", "add",
-            $VBOXNAME,
-            "--name",    "sharedfolder",
-            "--hostpath", $VM_SHARED_FOLDER,
-            "--automount",
-        );
+#    system ($VBOXMANAGE, "sharedfolder", "add",
+#            $VBOXNAME,
+#            "--name",    "sharedfolder",
+#            "--hostpath", $VM_SHARED_FOLDER,
+#            "--automount",
+#        );
 
     system ($VBOXMANAGE, "sharedfolder", "add",
             $VBOXNAME,
