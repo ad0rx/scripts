@@ -28,9 +28,10 @@ then
     sudo -u user mv .screen /home/user/
 
     # Get scripts
+    sudo -u user git config --global user.email "bradley.whitlock@gmail.com" 
     sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
 
-    cp /media/sf_sharedfolder/support/sudoers /etc/sudoers
+    cp /home/user/scripts/vm/support/sudoers /etc/sudoers
 
     # disable screen lock
     sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
@@ -117,7 +118,7 @@ sudo dpkg-reconfigure dash
 mkdir /tftpboot
 chmod 777 /tftpboot
 chown -R nobody /tftpboot
-cp support/tftp /etc/xinetd.d/
+cp /home/user/scripts/vm/support/tftp /etc/xinetd.d/
 service xinetd restart
 mkdir -p $PETALINUX_DIR
 chown -R user:xilinx /app
