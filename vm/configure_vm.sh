@@ -22,15 +22,20 @@ then
     usermod -aG xilinx user
 
     # Get rcfiles
-    sudo -u user wget https://raw.githubusercontent.com/ad0rx/rcfiles/master/.bashrc
-    sudo -u user mv .bashrc /home/user/
-    sudo -u user wget https://raw.githubusercontent.com/ad0rx/rcfiles/master/.screenrc 
-    sudo -u user mv .screen /home/user/
+    #sudo -u user wget https://raw.githubusercontent.com/ad0rx/rcfiles/master/.bashrc
+    #sudo -u user mv .bashrc /home/user/
+    #sudo -u user wget https://raw.githubusercontent.com/ad0rx/rcfiles/master/.screenrc 
+    #sudo -u user mv .screen /home/user/
 
     # Get scripts
     sudo -u user git config --global user.email "bradley.whitlock@gmail.com" 
     sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
 
+    # Get rcfiles
+    sudo -u user git clone https://github.com/ad0rx/rcfiles.git /home/user/rcfiles
+    cp /home/user/rcfiles/.* /home/user/
+
+    # Remove password requirement from sudo command
     cp /home/user/scripts/vm/support/sudoers /etc/sudoers
 
     # Setup crontab
