@@ -33,6 +33,9 @@ then
 
     cp /home/user/scripts/vm/support/sudoers /etc/sudoers
 
+    # Setup crontab
+    crontab < /home/user/scripts/vm/support/crontab.root
+    
     # disable screen lock
     sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
     
@@ -41,7 +44,6 @@ then
     
 fi
 
-#sleep 3
 # Update the system
 #apt update && apt upgrade -y
 
