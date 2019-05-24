@@ -27,6 +27,8 @@ then
     #sudo -u user wget https://raw.githubusercontent.com/ad0rx/rcfiles/master/.screenrc 
     #sudo -u user mv .screen /home/user/
 
+    apt -y install git
+    
     # Get scripts
     sudo -u user git config --global user.email "bradley.whitlock@gmail.com" 
     sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
