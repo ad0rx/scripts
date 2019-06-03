@@ -46,7 +46,7 @@ then
     # disable screen lock
     sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
     
-    echo "Logout and relogin, and rerun this script"
+    echo; echo "** Logout and relogin, and rerun this script **"; echo
     exit
     
 fi

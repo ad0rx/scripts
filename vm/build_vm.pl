@@ -32,12 +32,12 @@ sub vm_is_running
 
     #print $stdout, "\n";
     
-    if ( $stdout =~ /State:\s*(running)/ )
+    if ( $stdout =~ /State:\s*(powered off)/ )
     {
-        return 1;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 sub createvm
@@ -193,8 +193,6 @@ sub wait_till_shutdown
         sleep 3;
     };
 
-    print "Waiting for machine to close\n";
-    sleep 10;
 }
 
 ######################################################################
