@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+#t
 # Run on the VM
 #wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh; chmod +x configure_vm.sh; sudo ./configure_vm.sh
 
