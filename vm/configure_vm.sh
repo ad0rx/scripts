@@ -1,5 +1,5 @@
 #!/bin/bash
-#t
+#
 # Run on the VM
 #wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh; chmod +x configure_vm.sh; sudo ./configure_vm.sh
 
@@ -11,13 +11,13 @@ SDX=/media/sf_downloads/sdx/Xilinx_SDx_2018.3_1207_2324/xsetup
 T=$(groups user | grep vboxsf)
 if  [ ! "$T" ]
 then
-    
+
     echo "Setting up groups"
     sleep 2
 
     usermod -aG vboxsf user
     usermod -aG sudo user
-    
+
     groupadd xilinx
     usermod -aG xilinx user
 
@@ -25,14 +25,14 @@ then
     #dpkg --configure -a
     rm -f /var/lib/dpkg/lock
     apt install -y git
-    
+
     # Get scripts
     echo "Getting scripts"
-    sudo -u user git config --global user.email "bradley.whitlock@gmail.com" 
+    sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
     sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
 
     # Get rcfiles
-    echo "Getting rcfiles"    
+    echo "Getting rcfiles"
     sudo -u user git clone https://github.com/ad0rx/rcfiles.git /home/user/rcfiles
     cp /home/user/rcfiles/.* /home/user/
 
@@ -43,20 +43,20 @@ then
     # Setup crontab
     echo "Installing crontab for root"
     crontab < /home/user/scripts/vm/support/crontab.root
-    
+
     # disable screen lock
-    echo "Disabling screen lock"    
+    echo "Disabling screen lock"
     sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
 
     # Add shared folders to fstab
     echo "Configuring shared folder fstab"
     mkdir -p /mnt/{vm,downloads}
-    echo 'vm        /mnt/vm        vboxsf rw 0 0' >> /etc/fstab 
-    echo 'downloads /mnt/downloads vboxsf rw 0 0' >> /etc/fstab 
-    
+    echo 'vm        /mnt/vm        vboxsf rw 0 0' >> /etc/fstab
+    echo 'downloads /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
+
     echo; echo "** Logout and relogin, and rerun this script **"; echo
     exit
-    
+
 fi
 
 set -e
@@ -66,13 +66,13 @@ set -e
 
 # Install Packages
 USER_PKGS=(emacs
-	   firefox
-	   ntp
+     firefox
+     ntp
            xinetd
-	   tftp
-	   tftpd
-	   gkrellm
-	   screen)
+     tftp
+     tftpd
+     gkrellm
+     screen)
 for i in "${USER_PKGS[@]}"
 do
     echo
@@ -85,31 +85,31 @@ done
 
 # Install Xilinx Deps
 XILINX_PKGS=(gcc
-	     gawk
-	     tofrodos
-	     tofrodos
-	     xvfb
-	     gcc
-	     make
-	     libncurses5-dev
-	     zlib1g-dev
-	     zlib1g-dev:i386
-	     libssl-dev
-	     flex
-	     bison
-	     diffstat
-	     chrpath
-	     socat
-	     xterm
-	     autoconf
-	     libtool
-	     unzip
-	     texinfo
-	     gcc-multilib
-	     build-essential
-	     libsdl1.2-dev
-	     git
-	     pax)
+       gawk
+       tofrodos
+       tofrodos
+       xvfb
+       gcc
+       make
+       libncurses5-dev
+       zlib1g-dev
+       zlib1g-dev:i386
+       libssl-dev
+       flex
+       bison
+       diffstat
+       chrpath
+       socat
+       xterm
+       autoconf
+       libtool
+       unzip
+       texinfo
+       gcc-multilib
+       build-essential
+       libsdl1.2-dev
+       git
+       pax)
 for i in "${XILINX_PKGS[@]}"
 do
 
@@ -132,7 +132,7 @@ chmod -R 775 /app
 # Set MAC address for Xilinx license
 #ip link set dev eth0 address ${MAC}
 
-# install vivado 
+# install vivado
 sudo -u user nice -n 20 $SDX &
 
 #install petalinux
@@ -153,4 +153,3 @@ wait
 # Set permissions on /app
 chown -R user:xilinx /app
 chmod -R 755 /app
-
