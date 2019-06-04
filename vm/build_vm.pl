@@ -3,7 +3,8 @@ use warnings;
 
 print "Running...\n";
 
-$VBOXNAME="Test-VM-3";
+$VBOXNAME="2019.1";
+$MAC_ADDRESS="080027be962b";
 
 $VBOXMANAGE="d:/bwhitlock/virtualbox5.1.22/vboxmanage.exe";
 $VBOX_GUEST_ADDITIONS="d:/bwhitlock/virtualbox5.1.22/VBoxGuestAdditions.iso";
@@ -64,6 +65,7 @@ sub createvm
             "--accelerate2dvideo", "off",
             "--boot1", "dvd",
             "--boot2", "disk",
+	          "--macaddress1", ${MAC_ADDRESS},
 
         );
 
@@ -143,7 +145,7 @@ sub vboxadditions
         );
 
 
-    print "\n\n** When system boots, cd /media/user/VBOX~; sudo sh ./VBoxL~; then shutdown **\n\n";
+    print "\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; then shutdown **\n\n";
 
     system ($VBOXMANAGE, "startvm",
             $VBOXNAME,
@@ -183,6 +185,8 @@ sub finalconfig
             $VBOXNAME,
         );
 
+    print "sudo passwd; su; ./media/sf_sharedfolder/scripts/vm/configure_vm.sh\n";
+
 }
 
 sub wait_till_shutdown
@@ -193,6 +197,9 @@ sub wait_till_shutdown
         sleep 3;
     };
 
+    print "Waiting a few seconds before starting\n";
+    sleep 5;
+    
 }
 
 ######################################################################
