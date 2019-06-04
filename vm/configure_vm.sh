@@ -5,6 +5,8 @@
 #git config --global user.email "bradley.whitlock@gmail.com" 
 #git clone https://github.com/ad0rx/scripts.git /home/user/scripts
 
+set -e
+
 PETALINUX=/media/sf_downloads/petalinux/petalinux-v2018.3-final-installer.run
 PETALINUX_DIR=/app/petalinux/2018.3
 SDX=/media/sf_downloads/sdx/Xilinx_SDx_2018.3_1207_2324/xsetup
@@ -13,7 +15,6 @@ SDX=/media/sf_downloads/sdx/Xilinx_SDx_2018.3_1207_2324/xsetup
 T=$(groups user | grep vboxsf)
 if  [ ! "$T" ]
 then
-    set -e
     
     echo "Setting up groups"
     sleep 2
@@ -138,7 +139,7 @@ chmod -R 775 /app
 
 #install petalinux
 sudo dpkg-reconfigure dash
-mkdir /tftpboot
+mkdir -p /tftpboot
 chmod 777 /tftpboot
 chown -R nobody /tftpboot
 cp /home/user/scripts/vm/support/tftp /etc/xinetd.d/
