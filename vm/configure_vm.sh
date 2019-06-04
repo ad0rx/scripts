@@ -132,7 +132,7 @@ chmod -R 775 /app
 # Set MAC address for Xilinx license
 #ip link set dev eth0 address ${MAC}
 
-# install vivado
+# install vivado 
 sudo -u user nice -n 20 $SDX &
 
 #install petalinux
