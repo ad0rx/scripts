@@ -1,11 +1,7 @@
 #!/bin/bash
 #
 # Run on the VM
-#wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh
-#
-#sudo apt install -y git
-#git config --global user.email "bradley.whitlock@gmail.com" 
-#git clone https://github.com/ad0rx/scripts.git /home/user/scripts
+#wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh; chmod +x configure_vm.sh; sudo ./configure_vm.sh
 
 PETALINUX=/media/sf_downloads/petalinux/petalinux-v2018.3-final-installer.run
 PETALINUX_DIR=/app/petalinux/2018.3
@@ -137,7 +133,7 @@ chmod -R 775 /app
 #ip link set dev eth0 address ${MAC}
 
 # install vivado
-#sudo -u user nice -n 20 $SDX &
+sudo -u user nice -n 20 $SDX &
 
 #install petalinux
 sudo dpkg-reconfigure dash
