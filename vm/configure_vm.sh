@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 # Run on the VM
+#wget https://github.com/ad0rx/scripts/master/vm/configure_vm.sh
+#
 #sudo apt install -y git
 #git config --global user.email "bradley.whitlock@gmail.com" 
 #git clone https://github.com/ad0rx/scripts.git /home/user/scripts
@@ -31,9 +33,9 @@ then
     apt install -y git
     
     # Get scripts
-    #echo "Getting scripts"
-    #sudo -u user git config --global user.email "bradley.whitlock@gmail.com" 
-    #sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
+    echo "Getting scripts"
+    sudo -u user git config --global user.email "bradley.whitlock@gmail.com" 
+    sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
 
     # Get rcfiles
     echo "Getting rcfiles"    
