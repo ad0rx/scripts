@@ -7,6 +7,8 @@ PETALINUX=/media/sf_downloads/petalinux/petalinux-v2018.3-final-installer.run
 PETALINUX_DIR=/app/petalinux/2018.3
 SDX=/media/sf_downloads/sdx/Xilinx_SDx_2018.3_1207_2324/xsetup
 
+XILINX_LICENSE=/media/sf_downloads/virtual-box.lic
+
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
 if  [ ! "$T" ]
@@ -51,8 +53,8 @@ then
     # Add shared folders to fstab
     echo "Configuring shared folder fstab"
     mkdir -p /mnt/{vm,downloads}
-    echo 'vm        /mnt/vm        vboxsf rw 0 0' >> /etc/fstab
-    echo 'downloads /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
+    echo 'sharedfolder /mnt/vm        vboxsf rw 0 0' >> /etc/fstab
+    echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
 
     echo; echo "** Logout and relogin, and rerun this script **"; echo
     exit
