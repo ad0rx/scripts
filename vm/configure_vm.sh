@@ -64,17 +64,18 @@ fi
 set -e
 
 # Update the system
-#apt update && apt upgrade -y
+echo "Updating the system"
+apt update && apt upgrade -y
 
 # Install Packages
 USER_PKGS=(emacs
-     firefox
-     ntp
+           firefox
+           ntp
            xinetd
-     tftp
-     tftpd
-     gkrellm
-     screen)
+           tftp
+           tftpd
+           gkrellm
+           screen)
 for i in "${USER_PKGS[@]}"
 do
     echo
@@ -87,31 +88,31 @@ done
 
 # Install Xilinx Deps
 XILINX_PKGS=(gcc
-       gawk
-       tofrodos
-       tofrodos
-       xvfb
-       gcc
-       make
-       libncurses5-dev
-       zlib1g-dev
-       zlib1g-dev:i386
-       libssl-dev
-       flex
-       bison
-       diffstat
-       chrpath
-       socat
-       xterm
-       autoconf
-       libtool
-       unzip
-       texinfo
-       gcc-multilib
-       build-essential
-       libsdl1.2-dev
-       git
-       pax)
+             gawk
+             tofrodos
+             tofrodos
+             xvfb
+             gcc
+             make
+             libncurses5-dev
+             zlib1g-dev
+             zlib1g-dev:i386
+             libssl-dev
+             flex
+             bison
+             diffstat
+             chrpath
+             socat
+             xterm
+             autoconf
+             libtool
+             unzip
+             texinfo
+             gcc-multilib
+             build-essential
+             libsdl1.2-dev
+             git
+             pax)
 for i in "${XILINX_PKGS[@]}"
 do
 
@@ -135,9 +136,11 @@ chmod -R 775 /app
 #ip link set dev eth0 address ${MAC}
 
 # install vivado
+echo; echo "Starting SDx Installer"; echo
 sudo -u user nice -n 20 $SDX &
 
 #install petalinux
+echo; echo "Installing PetaLinux"; echo
 sudo dpkg-reconfigure dash
 mkdir -p /tftpboot
 chmod 777 /tftpboot
@@ -152,6 +155,7 @@ sudo -u user $PETALINUX $PETALINUX_DIR
 popd
 
 wait
+
 # Set permissions on /app
 chown -R user:xilinx /app
 chmod -R 755 /app
