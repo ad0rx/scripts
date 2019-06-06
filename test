@@ -1,0 +1,31 @@
+total 116K
+drwxrwsrwx   9 user   xilinx 4.0K Jun  5 19:26 [0m[34;42mapp[0m
+drwxr-xr-x   2 root   root   4.0K Jun  5 19:36 [01;34mbin[0m
+drwxr-xr-x   3 root   root   4.0K Jun  5 19:39 [01;34mboot[0m
+drwxrwxr-x   2 root   root   4.0K Jun  4 14:01 [01;34mcdrom[0m
+drwxr-xr-x  18 root   root   3.8K Jun  4 14:33 [01;34mdev[0m
+drwxr-xr-x 133 root   root    12K Jun  5 19:39 [01;34metc[0m
+drwxr-xr-x   3 root   root   4.0K Jun  4 14:01 [01;34mhome[0m
+lrwxrwxrwx   1 root   root     33 Jun  5 19:39 [01;36minitrd.img[0m -> boot/initrd.img-4.15.0-51-generic
+lrwxrwxrwx   1 root   root     33 Jun  5 19:39 [01;36minitrd.img.old[0m -> boot/initrd.img-4.13.0-36-generic
+drwxr-xr-x  23 root   root   4.0K Jun  4 20:37 [01;34mlib[0m
+drwxr-xr-x   2 root   root   4.0K Jun  4 20:38 [01;34mlib32[0m
+drwxr-xr-x   2 root   root   4.0K Jun  4 20:37 [01;34mlib64[0m
+drwxr-xr-x   2 root   root   4.0K Jun  4 20:38 [01;34mlibx32[0m
+drwx------   2 root   root    16K Jun  4 07:58 [01;34mlost+found[0m
+drwxr-xr-x   5 root   root   4.0K Jun  4 20:33 [01;34mmedia[0m
+drwxr-xr-x   4 root   root   4.0K Jun  4 20:34 [01;34mmnt[0m
+drwxr-xr-x   3 root   root   4.0K Jun  4 20:32 [01;34mopt[0m
+dr-xr-xr-x 258 root   root      0 Jun  4 20:33 [01;34mproc[0m
+drwx------   3 root   root   4.0K Feb 28  2018 [01;34mroot[0m
+drwxr-xr-x  27 root   root   1000 Jun  5 19:39 [01;34mrun[0m
+drwxr-xr-x   2 root   root    12K Jun  5 19:36 [01;34msbin[0m
+drwxr-xr-x   2 root   root   4.0K Jun  5 19:38 [01;34msnap[0m
+drwxr-xr-x   2 root   root   4.0K Feb 28  2018 [01;34msrv[0m
+dr-xr-xr-x  13 root   root      0 Jun  4 14:33 [01;34msys[0m
+drwxrwxrwx   2 nobody root   4.0K Jun  5 12:48 [34;42mtftpboot[0m
+drwxrwxrwt  14 root   root   4.0K Jun  5 19:40 [30;42mtmp[0m
+drwxr-xr-x  13 root   root   4.0K Jun  4 20:38 [01;34musr[0m
+drwxr-xr-x  14 root   root   4.0K Feb 28  2018 [01;34mvar[0m
+lrwxrwxrwx   1 root   root     30 Jun  5 19:39 [01;36mvmlinuz[0m -> boot/vmlinuz-4.15.0-51-generic
+lrwxrwxrwx   1 root   root     30 Jun  5 19:39 [01;36mvmlinuz.old[0m -> boot/vmlinuz-4.13.0-36-generic
