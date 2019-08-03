@@ -16,8 +16,7 @@ $VM_VRAM_SIZE="128";
 $VM_CPUS="2";
 $VM_CPUEXECUTION_CAP="90";
 
-#$UBUNTU_ISO="D:/bwhitlock/downloads/vm_support/ubuntu-16.04.4-desktop-amd64.iso";
-$UBUNTU_ISO="c:/vm/ubuntu-16.04.4-desktop-amd64.iso";
+$UBUNTU_ISO="c:/vm/ubuntu-18.04.1-desktop-amd64.iso";
 
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
 $VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
