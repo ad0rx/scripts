@@ -1,16 +1,12 @@
 #!/bin/bash
 #
 # Run on the VM
-# wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh; chmod +x configure_vm.sh; sudo ./configure_vm.sh
+# Checkout the vm scripts to the local windows machine and
 
 PETALINUX=/mnt/downloads/petalinux/petalinux-v2019.1-final-installer.run
 PETALINUX_DIR=/app/petalinux/2019.1
 
 SSH_ID=/mnt/downloads/ssh-key-virtualbox/*
-
-if false
-then
-    
 
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
@@ -149,15 +145,6 @@ mkdir -p /app
 chown -R user:xilinx /app
 chmod -R g+s /app
 chmod -R 775 /app
-
-# Set MAC address for Xilinx license
-#ip link set dev eth0 address ${MAC}
-
-# install vivado
-#echo; echo "Starting SDx Installer"; echo
-#sudo -u user nice -n 20 $SDX &
-
-fi
 
 #install petalinux
 echo; echo "Installing PetaLinux"; echo
