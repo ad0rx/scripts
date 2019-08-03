@@ -1,13 +1,16 @@
 #!/bin/bash
 #
 # Run on the VM
-#wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh; chmod +x configure_vm.sh; sudo ./configure_vm.sh
+# wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh; chmod +x configure_vm.sh; sudo ./configure_vm.sh
 
 PETALINUX=/media/sf_downloads/petalinux/petalinux-v2018.3-final-installer.run
 PETALINUX_DIR=/app/petalinux/2018.3
 SDX=/media/sf_downloads/sdx/Xilinx_SDx_2018.3_1207_2324/xsetup
+#    /media/sf_downloads/sdx/Xilinx_SDx_2019.1_0524_1430/xsetup
 
 XILINX_LICENSE=/media/sf_downloads/virtual-box.lic
+
+SSH_ID=/media/sf_downloads/ssh-key-virtualbox/*
 
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
@@ -25,8 +28,13 @@ then
 
     echo "Installing git"
     #dpkg --configure -a
-    rm -f /var/lib/dpkg/lock
-    apt install -y git
+    #rm -f /var/lib/dpkg/lock
+    apt install -y git screen
+
+    # Grab SSH ID
+    mkdir -p /home/user/.ssh
+    cp ${SSH_ID} /home/user/.ssh/
+    chmod -R 700 /home/user/.ssh
 
     # Get scripts
     echo "Getting scripts"
@@ -47,14 +55,18 @@ then
     crontab < /home/user/scripts/vm/support/crontab.root
 
     # disable screen lock
-    echo "Disabling screen lock"
-    sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
+    #echo "Disabling screen lock"
+    #sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
 
     # Add shared folders to fstab
     echo "Configuring shared folder fstab"
     mkdir -p /mnt/{vm,downloads}
     echo 'sharedfolder /mnt/vm        vboxsf rw 0 0' >> /etc/fstab
     echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
+
+    # Update the system
+    #echo "Updating the system"
+    #apt update && apt upgrade -y
 
     echo; echo "** Logout and relogin, and rerun this script **"; echo
     exit
@@ -63,19 +75,17 @@ fi
 
 set -e
 
-# Update the system
-echo "Updating the system"
-apt update && apt upgrade -y
+# Install User Packages
+USER_PKGS=(
+    emacs
+    firefox
+    ntp
+    xinetd
+    tftp
+    tftpd
+    gkrellm
+    screen)
 
-# Install Packages
-USER_PKGS=(emacs
-           firefox
-           ntp
-           xinetd
-           tftp
-           tftpd
-           gkrellm
-           screen)
 for i in "${USER_PKGS[@]}"
 do
     echo
@@ -86,37 +96,47 @@ do
 
 done
 
+sudo -u bwhitlock gkrellm&
+
 # Install Xilinx Deps
-XILINX_PKGS=(gcc
-             gawk
-             tofrodos
-             tofrodos
-             xvfb
-             gcc
-             make
-             libncurses5-dev
-             zlib1g-dev
-             zlib1g-dev:i386
-             libssl-dev
-             flex
-             bison
-             diffstat
-             chrpath
-             socat
-             xterm
-             autoconf
-             libtool
-             unzip
-             texinfo
-             gcc-multilib
-             build-essential
-             libsdl1.2-dev
-             git
-             pax)
+XILINX_PKGS=(tofrodos
+       iproute2
+       gawk
+       make
+       net-tools
+       libncurses5-dev
+       tftpd
+       zlib1g:i386
+       libssl-dev
+       flex
+       bison
+       libselinux1
+       gnupg
+       wget
+       diffstat
+       chrpath
+       socat
+       xterm
+       autoconf
+       libtool
+       tar
+       unzip
+       texinfo
+       zlib1g-dev
+       gcc-multilib
+       build-essential
+       screen
+       pax
+       gzip
+       python)
+
 for i in "${XILINX_PKGS[@]}"
 do
 
-    #echo $i
+    echo
+    echo $i
+    echo
+    #sleep 1
     apt install -y $i
 
 done
@@ -136,8 +156,8 @@ chmod -R 775 /app
 #ip link set dev eth0 address ${MAC}
 
 # install vivado
-echo; echo "Starting SDx Installer"; echo
-sudo -u user nice -n 20 $SDX &
+#echo; echo "Starting SDx Installer"; echo
+#sudo -u user nice -n 20 $SDX &
 
 #install petalinux
 echo; echo "Installing PetaLinux"; echo
@@ -153,8 +173,6 @@ chmod -R 777 /app
 pushd /home/user
 sudo -u user $PETALINUX $PETALINUX_DIR
 popd
-
-wait
 
 # Set permissions on /app
 chown -R user:xilinx /app
