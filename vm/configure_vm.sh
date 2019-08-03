@@ -3,14 +3,14 @@
 # Run on the VM
 # wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure_vm.sh; chmod +x configure_vm.sh; sudo ./configure_vm.sh
 
-PETALINUX=/media/sf_downloads/petalinux/petalinux-v2018.3-final-installer.run
-PETALINUX_DIR=/app/petalinux/2018.3
-SDX=/media/sf_downloads/sdx/Xilinx_SDx_2018.3_1207_2324/xsetup
-#    /media/sf_downloads/sdx/Xilinx_SDx_2019.1_0524_1430/xsetup
+PETALINUX=/mnt/downloads/petalinux/petalinux-v2019.1-final-installer.run
+PETALINUX_DIR=/app/petalinux/2019.1
 
-XILINX_LICENSE=/media/sf_downloads/virtual-box.lic
+SSH_ID=/mnt/downloads/ssh-key-virtualbox/*
 
-SSH_ID=/media/sf_downloads/ssh-key-virtualbox/*
+if false
+then
+    
 
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
@@ -96,7 +96,7 @@ do
 
 done
 
-sudo -u bwhitlock gkrellm&
+sudo -u user gkrellm&
 
 # Install Xilinx Deps
 XILINX_PKGS=(tofrodos
@@ -144,8 +144,6 @@ done
 # NTP
 timedatectl set-ntp yes
 
-#sudo -u user gkrellm &
-
 # Xilinx Install Area
 mkdir -p /app
 chown -R user:xilinx /app
@@ -158,6 +156,8 @@ chmod -R 775 /app
 # install vivado
 #echo; echo "Starting SDx Installer"; echo
 #sudo -u user nice -n 20 $SDX &
+
+fi
 
 #install petalinux
 echo; echo "Installing PetaLinux"; echo
