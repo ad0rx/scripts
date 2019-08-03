@@ -55,7 +55,8 @@ XILINX_PKGS=(tofrodos
 	     build-essential
 	     screen
 	     pax
-	     gzip)
+	     gzip
+	     python)
 
 for i in "${XILINX_PKGS[@]}"
 do
