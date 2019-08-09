@@ -94,39 +94,69 @@ done
 
 sudo -u user gkrellm&
 
-# Install Xilinx Deps
+# Install Xilinx Deps listed in UG1144
 XILINX_PKGS=(tofrodos
-       iproute2
-       gawk
-       make
-       net-tools
-       libncurses5-dev
-       tftpd
-       zlib1g:i386
-       libssl-dev
-       flex
-       bison
-       libselinux1
-       gnupg
-       wget
-       diffstat
-       chrpath
-       socat
-       xterm
-       autoconf
-       libtool
-       tar
-       unzip
-       texinfo
-       zlib1g-dev
-       gcc-multilib
-       build-essential
-       screen
-       pax
-       gzip
-       python)
+	     iproute2
+	     gawk
+	     make
+	     net-tools
+	     libncurses5-dev
+	     tftpd
+	     zlib1g:i386
+	     libssl-dev
+	     flex
+	     bison
+	     libselinux1
+	     gnupg
+	     wget
+	     diffstat
+	     chrpath
+	     socat
+	     xterm
+	     autoconf
+	     libtool
+	     tar
+	     unzip
+	     texinfo
+	     zlib1g-dev
+	     gcc-multilib
+	     build-essential
+	     screen
+	     pax
+	     gzip)
 
 for i in "${XILINX_PKGS[@]}"
+do
+
+    echo
+    echo $i
+    echo
+    #sleep 1
+    apt install -y $i
+
+done
+
+# Install dependencies which are needed but not listed in UG1144
+EXTRA_PKGS=(python
+	    libsdl1.2-dev
+	    libglib2.0-dev
+	    python3-gi
+	    less
+	    lsb-release
+	    fakeroot
+	    libgtk2.0-0
+	    libgtk2.0-dev
+	    cpio
+	    rsync
+	    xorg
+	    expect
+	    dos2unix
+	    sudo
+	    locales
+	    git
+	   )
+
+for i in "${EXTRA_PKGS[@]}"
 do
 
     echo
