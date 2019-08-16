@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+#1
 # Run on the VM
 # Checkout the vm scripts to the local windows machine and
 
