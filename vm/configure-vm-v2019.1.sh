@@ -1,7 +1,8 @@
 #!/bin/bash
-#11
-# Run on the VM
-# Checkout the vm scripts to the local windows machine and
+#
+# Use wget to get this file and run on vm
+# wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh
+# run with sudo
 
 PETALINUX=/mnt/downloads/petalinux/petalinux-v2019.1-final-installer.run
 PETALINUX_DIR=/app/petalinux/2019.1
@@ -56,15 +57,16 @@ then
 
     # Add shared folders to fstab
     echo "Configuring shared folder fstab"
-    mkdir -p /mnt/{vm,downloads}
+    mkdir -p /mnt/{vm,downloads,projects}
     echo 'sharedfolder /mnt/vm        vboxsf rw 0 0' >> /etc/fstab
     echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
+    echo 'projects     /mnt/projects  vboxsf rw 0 0' >> /etc/fstab
 
     # Update the system
     #echo "Updating the system"
     #apt update && apt upgrade -y
 
-    echo; echo "** Logout and relogin, and rerun this script **"; echo
+    echo; echo "** reboot, and rerun this script **"; echo
     exit
 
 fi
