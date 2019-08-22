@@ -16,13 +16,15 @@ $VM_VRAM_SIZE="128";
 $VM_CPUS="2";
 $VM_CPUEXECUTION_CAP="90";
 
-$UBUNTU_ISO="c:/vm/ubuntu-18.04.1-desktop-amd64.iso";
+#$UBUNTU_ISO="c:/vm/ubuntu-18.04.1-desktop-amd64.iso";
+$UBUNTU_ISO="D:/bwhitlock/downloads/vm_support/ubuntu-18.04.1-desktop-amd64.iso";
 
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
 $VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
 
 $VM_SHARED_FOLDER="c:/vm";
 $VM_DOWNLOADS="d:/bwhitlock/downloads";
+$VM_PROJECTS="d:/bwhitlock/Documents/xilinx_projects";
 
 sub vm_is_running
 {
@@ -31,10 +33,10 @@ sub vm_is_running
     run [ $VBOXMANAGE, "showvminfo", $vm_name ], ">", \my $stdout;
 
     #print $stdout, "\n";
-    
+
     if ( $stdout =~ /State:\s*(powered off)/ )
     {
-        return 0;
+	return 0;
     }
 
     return 1;
@@ -45,144 +47,150 @@ sub createvm
     print "Creating VM\n";
     system ($VBOXMANAGE, "--version");
     system ($VBOXMANAGE, "createvm",
-            "--name",    $VBOXNAME,
-            "--basefolder", $VM_BASE_FOLDER,
-            "--ostype",  "Ubuntu_64",
-            "--register",
-        );
+	    "--name",    $VBOXNAME,
+	    "--basefolder", $VM_BASE_FOLDER,
+	    "--ostype",  "Ubuntu_64",
+	    "--register",
+	);
 
     system ($VBOXMANAGE, "modifyvm",
-            $VBOXNAME,
-            "--memory", $VM_MEMORY_SIZE,
-            "--vram",   $VM_VRAM_SIZE,
-            "--cpus",   $VM_CPUS,
-            "--cpuexecutioncap", $VM_CPUEXECUTION_CAP,
-            "--pae",      "on",
-            "--hwvirtex", "on",
-            "--paravirtprovider", "default",
-            "--accelerate3d",      "on",
-            "--accelerate2dvideo", "off",
-            "--boot1", "dvd",
-            "--boot2", "disk",
-	          "--macaddress1", ${MAC_ADDRESS},
+	    $VBOXNAME,
+	    "--memory", $VM_MEMORY_SIZE,
+	    "--vram",   $VM_VRAM_SIZE,
+	    "--cpus",   $VM_CPUS,
+	    "--cpuexecutioncap", $VM_CPUEXECUTION_CAP,
+	    "--pae",      "on",
+	    "--hwvirtex", "on",
+	    "--paravirtprovider", "default",
+	    "--accelerate3d",      "on",
+	    "--accelerate2dvideo", "off",
+	    "--boot1", "dvd",
+	    "--boot2", "disk",
+	    "--macaddress1", ${MAC_ADDRESS},
 
-        );
+	);
 
     system ($VBOXMANAGE,  "modifyvm",
-            $VBOXNAME,
-            "--nic1",     "bridged",
-            "--nictype1", "82540EM",
-            "--bridgeadapter1", "Intel(R) Ethernet Connection I219-LM",
-        );
+	    $VBOXNAME,
+	    "--nic1",     "bridged",
+	    "--nictype1", "82540EM",
+	    "--bridgeadapter1", "Intel(R) Ethernet Connection I219-LM",
+	);
 
 
     system ($VBOXMANAGE, "modifyvm",
-            $VBOXNAME,
-            "--clipboard",    "bidirectional",
-            "--usb",          "on",
-            "--audio",        "none",
-        );
+	    $VBOXNAME,
+	    "--clipboard",    "bidirectional",
+	    "--usb",          "on",
+	    "--audio",        "none",
+	);
 
     system ($VBOXMANAGE, "storagectl",
-            $VBOXNAME,
-            "--name",        "IDE",
-            "--add",         "ide",
-            "--bootable",    "on",
-            "--hostiocache", "off",
-        );
+	    $VBOXNAME,
+	    "--name",        "IDE",
+	    "--add",         "ide",
+	    "--bootable",    "on",
+	    "--hostiocache", "off",
+	);
 
     system ($VBOXMANAGE, "storagectl",
-            $VBOXNAME,
-            "--name",     "SATA",
-            "--add",      "sata",
-            "--bootable", "on",
+	    $VBOXNAME,
+	    "--name",     "SATA",
+	    "--add",      "sata",
+	    "--bootable", "on",
 
-        );
+	);
 
     system ($VBOXMANAGE, "storageattach",
-            $VBOXNAME,
-            "--storagectl", "IDE",
-            "--port",       "1",
-            "--device",     "1",
-            "--type",       "dvddrive",
-            "--medium",     $UBUNTU_ISO,
-        );
+	    $VBOXNAME,
+	    "--storagectl", "IDE",
+	    "--port",       "1",
+	    "--device",     "1",
+	    "--type",       "dvddrive",
+	    "--medium",     $UBUNTU_ISO,
+	);
 
     system ($VBOXMANAGE, "createmedium",
-            "disk",
-            "--filename", $VM_HDD,
-            "--size",     "102400",
-            "--format",   "vdi",
-        );
+	    "disk",
+	    "--filename", $VM_HDD,
+	    "--size",     "102400",
+	    "--format",   "vdi",
+	);
 
     system ($VBOXMANAGE, "storageattach",
-            $VBOXNAME,
-            "--storagectl", "SATA",
-            "--port",       "0",
-            "--device",     "0",
-            "--type",       "hdd",
-            "--medium",     $VM_HDD,
-        );
+	    $VBOXNAME,
+	    "--storagectl", "SATA",
+	    "--port",       "0",
+	    "--device",     "0",
+	    "--type",       "hdd",
+	    "--medium",     $VM_HDD,
+	);
 
     system ($VBOXMANAGE, "startvm",
-            $VBOXNAME,
-        );
+	    $VBOXNAME,
+	);
 }
 
 sub vboxadditions
 {
 
     print "VBox Additions\n";
-    
-    system ($VBOXMANAGE, "storageattach",
-            $VBOXNAME,
-            "--storagectl", "IDE",
-            "--port",       "1",
-            "--device",     "1",
-            "--type",       "dvddrive",
-            "--medium",     $VBOX_GUEST_ADDITIONS,
-        );
 
+    system ($VBOXMANAGE, "storageattach",
+	    $VBOXNAME,
+	    "--storagectl", "IDE",
+	    "--port",       "1",
+	    "--device",     "1",
+	    "--type",       "dvddrive",
+	    "--medium",     $VBOX_GUEST_ADDITIONS,
+	);
 
     print "\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; then shutdown **\n\n";
 
     system ($VBOXMANAGE, "startvm",
-            $VBOXNAME,
-        );
+	    $VBOXNAME,
+	);
 
 }
 
 sub finalconfig
 {
     print "Final Config\n";
-    
+
     # Unmount Guest Additions DVD
     system ($VBOXMANAGE, "storageattach",
-            $VBOXNAME,
-            "--storagectl", "IDE",
-            "--port",       "1",
-            "--device",     "1",
-            "--type",       "dvddrive",
-            "--medium",     "none",
-        );
+	    $VBOXNAME,
+	    "--storagectl", "IDE",
+	    "--port",       "1",
+	    "--device",     "1",
+	    "--type",       "dvddrive",
+	    "--medium",     "none",
+	);
 
     system ($VBOXMANAGE, "sharedfolder", "add",
-            $VBOXNAME,
-            "--name",    "sharedfolder",
-            "--hostpath", $VM_SHARED_FOLDER,
-            "--automount",
-        );
+	    $VBOXNAME,
+	    "--name",    "sharedfolder",
+	    "--hostpath", $VM_SHARED_FOLDER,
+	    "--automount",
+	);
 
     system ($VBOXMANAGE, "sharedfolder", "add",
-            $VBOXNAME,
-            "--name",    "downloads",
-            "--hostpath", $VM_DOWNLOADS,
-            "--automount",
-        );
+	    $VBOXNAME,
+	    "--name",    "downloads",
+	    "--hostpath", $VM_DOWNLOADS,
+	    "--automount",
+	);
+
+    system ($VBOXMANAGE, "sharedfolder", "add",
+	    $VBOXNAME,
+	    "--name",    "projects",
+	    "--hostpath", $VM_PROJECTS,
+	    "--automount",
+	);
 
     system ($VBOXMANAGE, "startvm",
-            $VBOXNAME,
-        );
+	    $VBOXNAME,
+	);
 
     print "sudo passwd; su; ./media/sf_sharedfolder/scripts/vm/configure_vm.sh\n";
 
@@ -193,12 +201,12 @@ sub wait_till_shutdown
     print "Waiting for machine to shutdown\n";
     while (vm_is_running $VBOXNAME)
     {
-        sleep 3;
+	sleep 3;
     };
 
     print "Waiting a few seconds before starting\n";
     sleep 5;
-    
+
 }
 
 ######################################################################
