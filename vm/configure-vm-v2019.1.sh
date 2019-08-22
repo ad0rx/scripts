@@ -1,12 +1,13 @@
 #!/bin/bash
-#11
-# Run on the VM
-# Checkout the vm scripts to the local windows machine and
+#
+# Use wget to get this file and run on vm
+# wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh
+# run with sudo
 
 PETALINUX=/mnt/downloads/petalinux/petalinux-v2019.1-final-installer.run
 PETALINUX_DIR=/app/petalinux/2019.1
 
-SSH_ID=/mnt/downloads/ssh-key-virtualbox/*
+SSH_ID=/mnt/downloads/vm_support/ssh-key-virtualbox/*
 
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
@@ -22,54 +23,62 @@ then
     groupadd xilinx
     usermod -aG xilinx user
 
-    echo "Installing git"
-    #dpkg --configure -a
-    #rm -f /var/lib/dpkg/lock
-    apt install -y git screen
-
-    # Grab SSH ID
-    mkdir -p /home/user/.ssh
-    cp ${SSH_ID} /home/user/.ssh/
-    chmod -R 700 /home/user/.ssh
-
-    # Get scripts
-    echo "Getting scripts"
-    sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
-    sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
-
-    # Get rcfiles
-    echo "Getting rcfiles"
-    sudo -u user git clone https://github.com/ad0rx/rcfiles.git /home/user/rcfiles
-    cp /home/user/rcfiles/.* /home/user/
-
-    # Remove password requirement from sudo command
-    echo "Configuring sudoers"
-    cp /home/user/scripts/vm/support/sudoers /etc/sudoers
-
-    # Setup crontab
-    echo "Installing crontab for root"
-    crontab < /home/user/scripts/vm/support/crontab.root
-
     # disable screen lock
     #echo "Disabling screen lock"
     #sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
 
     # Add shared folders to fstab
     echo "Configuring shared folder fstab"
-    mkdir -p /mnt/{vm,downloads}
+    mkdir -p /mnt/{vm,downloads,projects}
     echo 'sharedfolder /mnt/vm        vboxsf rw 0 0' >> /etc/fstab
     echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
+    echo 'projects     /mnt/projects  vboxsf rw 0 0' >> /etc/fstab
 
     # Update the system
     #echo "Updating the system"
     #apt update && apt upgrade -y
 
-    echo; echo "** Logout and relogin, and rerun this script **"; echo
+    echo; echo "** reboot, and rerun this script **"; echo
     exit
 
 fi
 
 set -e
+
+# Grab SSH ID
+#mkdir -p /home/user/.ssh
+cp -r ${SSH_ID} /home/user/.ssh
+chmod -R 700 /home/user/.ssh
+chown -R user:user /home/user/.ssh
+
+# This is all down here because we need to have a filesystem mounted
+# and groups must be setup first
+echo "Installing git"
+#dpkg --configure -a
+#rm -f /var/lib/dpkg/lock
+apt install -y git screen
+sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
+
+# Get scripts
+echo "Getting scripts"
+sudo -u user git clone git@github.com:ad0rx/scripts.git /home/user/scripts
+
+# Get rcfiles
+echo "Getting rcfiles"
+sudo -u user git clone git@github.com:ad0rx/rcfiles.git /home/user/rcfiles
+cp /home/user/rcfiles/.* /home/user/
+
+    # Remove password requirement from sudo command
+    echo "Configuring sudoers"
+    cp /home/user/scripts/vm/support/sudoers /etc/sudoers
+
+    # Setup gkrellm
+    mkdir -p /home/user/.gkrellm2
+    cp /home/user/scripts/vm/support/user-config /home/user/.gkrellm2/
+
+    # Setup crontab
+    echo "Installing crontab for root"
+    crontab < /home/user/scripts/vm/support/crontab.root
 
 # Install User Packages
 USER_PKGS=(
