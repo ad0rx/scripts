@@ -63,10 +63,10 @@ echo "Installing git"
 #dpkg --configure -a
 #rm -f /var/lib/dpkg/lock
 apt install -y git screen
+sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
 
 # Get scripts
 echo "Getting scripts"
-sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
 sudo -u user git clone git@github.com:ad0rx/scripts.git /home/user/scripts
 
 # Get rcfiles
