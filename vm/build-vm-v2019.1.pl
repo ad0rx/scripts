@@ -145,7 +145,8 @@ sub vboxadditions
 	    "--medium",     $VBOX_GUEST_ADDITIONS,
 	);
 
-    print "\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; then shutdown **\n\n";
+    print "\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; **\n\n";
+    #print "\n\n** Also, edit /etc/apt/apt.conf.d/20auto-upgrades to disable unattended upgrades **\n\n";
 
     system ($VBOXMANAGE, "startvm",
 	    $VBOXNAME,
@@ -192,7 +193,9 @@ sub finalconfig
 	    $VBOXNAME,
 	);
 
-    print "sudo passwd; su; ./media/sf_sharedfolder/scripts/vm/configure_vm.sh\n";
+    # In 18.04.1, shared folders are not automatically showing up
+    #print "sudo passwd; su; ./media/sf_sharedfolder/scripts/vm/configure-vm-v2019.1.sh\n";
+    print "wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh\n";
 
 }
 
@@ -208,6 +211,8 @@ sub wait_till_shutdown
     sleep 5;
 
 }
+
+
 
 ######################################################################
 ######################################################################
