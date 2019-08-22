@@ -23,14 +23,6 @@ then
     groupadd xilinx
     usermod -aG xilinx user
 
-    # Remove password requirement from sudo command
-    echo "Configuring sudoers"
-    cp /home/user/scripts/vm/support/sudoers /etc/sudoers
-
-    # Setup crontab
-    echo "Installing crontab for root"
-    crontab < /home/user/scripts/vm/support/crontab.root
-
     # disable screen lock
     #echo "Disabling screen lock"
     #sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
@@ -59,6 +51,8 @@ cp -r ${SSH_ID} /home/user/.ssh
 chmod -R 700 /home/user/.ssh
 chown -R user:user /home/user/.ssh
 
+# This is all down here because we need to have a filesystem mounted
+# and groups must be setup first
 echo "Installing git"
 #dpkg --configure -a
 #rm -f /var/lib/dpkg/lock
@@ -73,6 +67,18 @@ sudo -u user git clone git@github.com:ad0rx/scripts.git /home/user/scripts
 echo "Getting rcfiles"
 sudo -u user git clone git@github.com:ad0rx/rcfiles.git /home/user/rcfiles
 cp /home/user/rcfiles/.* /home/user/
+
+    # Remove password requirement from sudo command
+    echo "Configuring sudoers"
+    cp /home/user/scripts/vm/support/sudoers /etc/sudoers
+
+    # Setup gkrellm
+    mkdir -p /home/user/.gkrellm2
+    cp /home/user/scripts/vm/support/user-config /home/user/.gkrellm2/
+
+    # Setup crontab
+    echo "Installing crontab for root"
+    crontab < /home/user/scripts/vm/support/crontab.root
 
 # Install User Packages
 USER_PKGS=(
