@@ -74,7 +74,7 @@ do
 	chown user:user /home/user/$(basename $f)
     fi
 done
-cp -r /home/user/rcfiles/.git /home/user/
+cp -r /home/user/rcfiles/.git /home/user
 chown -R user:user /home/user/.git
 
 # Remove password requirement from sudo command
@@ -84,6 +84,7 @@ cp /home/user/scripts/vm/support/sudoers /etc/sudoers
 # Setup gkrellm
 mkdir -p /home/user/.gkrellm2
 cp /home/user/scripts/vm/support/user-config /home/user/.gkrellm2/
+chown -R user:user /home/user/.gkrellm2
 
 # Setup crontab
 echo "Installing crontab for root"
