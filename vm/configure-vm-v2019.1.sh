@@ -71,7 +71,7 @@ do
     if [ -f $f ]
     then
 	cp $f /home/user/
-	chown user:user /home/user/$f
+	chown user:user /home/user/$(basename $f)
     fi
 done
 
