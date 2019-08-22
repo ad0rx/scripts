@@ -46,7 +46,7 @@ fi
 set -e
 
 # Grab SSH ID
-#mkdir -p /home/user/.ssh
+mkdir -p /home/user/.ssh
 cp -r ${SSH_ID} /home/user/.ssh
 chmod -R 700 /home/user/.ssh
 chown -R user:user /home/user/.ssh
