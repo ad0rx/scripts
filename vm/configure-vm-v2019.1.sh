@@ -7,7 +7,7 @@
 PETALINUX=/mnt/downloads/petalinux/petalinux-v2019.1-final-installer.run
 PETALINUX_DIR=/app/petalinux/2019.1
 
-SSH_ID=/mnt/downloads/ssh-key-virtualbox/*
+SSH_ID=/mnt/downloads/vm_support/ssh-key-virtualbox/*
 
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
@@ -22,26 +22,6 @@ then
 
     groupadd xilinx
     usermod -aG xilinx user
-
-    echo "Installing git"
-    #dpkg --configure -a
-    #rm -f /var/lib/dpkg/lock
-    apt install -y git screen
-
-    # Grab SSH ID
-    mkdir -p /home/user/.ssh
-    cp ${SSH_ID} /home/user/.ssh/
-    chmod -R 700 /home/user/.ssh
-
-    # Get scripts
-    echo "Getting scripts"
-    sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
-    sudo -u user git clone https://github.com/ad0rx/scripts.git /home/user/scripts
-
-    # Get rcfiles
-    echo "Getting rcfiles"
-    sudo -u user git clone https://github.com/ad0rx/rcfiles.git /home/user/rcfiles
-    cp /home/user/rcfiles/.* /home/user/
 
     # Remove password requirement from sudo command
     echo "Configuring sudoers"
@@ -72,6 +52,27 @@ then
 fi
 
 set -e
+
+# Grab SSH ID
+#mkdir -p /home/user/.ssh
+cp -r ${SSH_ID} /home/user/.ssh
+chmod -R 700 /home/user/.ssh
+chown -R user:user /home/user/.ssh
+
+echo "Installing git"
+#dpkg --configure -a
+#rm -f /var/lib/dpkg/lock
+apt install -y git screen
+
+# Get scripts
+echo "Getting scripts"
+sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
+sudo -u user git clone git@github.com:ad0rx/scripts.git /home/user/scripts
+
+# Get rcfiles
+echo "Getting rcfiles"
+sudo -u user git clone git@github.com:ad0rx/rcfiles.git /home/user/rcfiles
+cp /home/user/rcfiles/.* /home/user/
 
 # Install User Packages
 USER_PKGS=(
