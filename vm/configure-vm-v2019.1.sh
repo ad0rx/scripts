@@ -74,6 +74,8 @@ do
 	chown user:user /home/user/$(basename $f)
     fi
 done
+cp -r /home/user/rcfiles/.git /home/user/
+chown -R user:user /home/user/.git
 
 # Remove password requirement from sudo command
 echo "Configuring sudoers"
