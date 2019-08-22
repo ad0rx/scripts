@@ -66,19 +66,26 @@ sudo -u user git clone git@github.com:ad0rx/scripts.git /home/user/scripts
 # Get rcfiles
 echo "Getting rcfiles"
 sudo -u user git clone git@github.com:ad0rx/rcfiles.git /home/user/rcfiles
-cp /home/user/rcfiles/.* /home/user/
+for f in /home/user/rcfiles/.*
+do
+    if [ -f $f ]
+    then
+	cp $f /home/user/
+	chown user:user /home/user/$f
+    fi
+done
 
-    # Remove password requirement from sudo command
-    echo "Configuring sudoers"
-    cp /home/user/scripts/vm/support/sudoers /etc/sudoers
+# Remove password requirement from sudo command
+echo "Configuring sudoers"
+cp /home/user/scripts/vm/support/sudoers /etc/sudoers
 
-    # Setup gkrellm
-    mkdir -p /home/user/.gkrellm2
-    cp /home/user/scripts/vm/support/user-config /home/user/.gkrellm2/
+# Setup gkrellm
+mkdir -p /home/user/.gkrellm2
+cp /home/user/scripts/vm/support/user-config /home/user/.gkrellm2/
 
-    # Setup crontab
-    echo "Installing crontab for root"
-    crontab < /home/user/scripts/vm/support/crontab.root
+# Setup crontab
+echo "Installing crontab for root"
+crontab < /home/user/scripts/vm/support/crontab.root
 
 # Install User Packages
 USER_PKGS=(
