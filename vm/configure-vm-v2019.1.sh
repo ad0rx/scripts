@@ -42,8 +42,7 @@ then
 
     # Add shared folders to fstab
     echo "Configuring shared folder fstab"
-    mkdir -p /mnt/{vm,downloads,projects}
-    echo 'sharedfolder /mnt/vm        vboxsf rw 0 0' >> /etc/fstab
+    mkdir -p /mnt/{downloads,projects}
     echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
     echo 'projects     /mnt/projects  vboxsf rw 0 0' >> /etc/fstab
 
