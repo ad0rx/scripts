@@ -42,8 +42,31 @@ sub vm_is_running
     return 1;
 }
 
+sub start_vm
+{
+    system ($VBOXMANAGE, "startvm",
+	    $VBOXNAME,
+	);
+}
+
+sub wait_till_shutdown
+{
+    print "Waiting for machine to shutdown\n";
+    while (vm_is_running $VBOXNAME)
+    {
+	sleep 3;
+    };
+
+    print "Waiting a few seconds before starting\n";
+    sleep 5;
+
+}
+
 sub createvm
 {
+
+    my $from_scratch = shift;
+
     print "Creating VM\n";
     system ($VBOXMANAGE, "--version");
     system ($VBOXMANAGE, "createvm",
@@ -67,7 +90,6 @@ sub createvm
 	    "--boot1", "dvd",
 	    "--boot2", "disk",
 	    "--macaddress1", ${MAC_ADDRESS},
-
 	);
 
     system ($VBOXMANAGE,  "modifyvm",
@@ -76,7 +98,6 @@ sub createvm
 	    "--nictype1", "82540EM",
 	    "--bridgeadapter1", "Intel(R) Ethernet Connection I219-LM",
 	);
-
 
     system ($VBOXMANAGE, "modifyvm",
 	    $VBOXNAME,
@@ -98,24 +119,35 @@ sub createvm
 	    "--name",     "SATA",
 	    "--add",      "sata",
 	    "--bootable", "on",
-
 	);
 
-    system ($VBOXMANAGE, "storageattach",
-	    $VBOXNAME,
-	    "--storagectl", "IDE",
-	    "--port",       "1",
-	    "--device",     "1",
-	    "--type",       "dvddrive",
-	    "--medium",     $UBUNTU_ISO,
-	);
+    if ($from_scratch == 1)
+    {
 
-    system ($VBOXMANAGE, "createmedium",
-	    "disk",
-	    "--filename", $VM_HDD,
-	    "--size",     "102400",
-	    "--format",   "vdi",
-	);
+	print ("Creating VM Drive and attaching ISO");
+
+	system ($VBOXMANAGE, "storageattach",
+		$VBOXNAME,
+		"--storagectl", "IDE",
+		"--port",       "1",
+		"--device",     "1",
+		"--type",       "dvddrive",
+		"--medium",     $UBUNTU_ISO,
+	    );
+
+	system ($VBOXMANAGE, "createmedium",
+		"disk",
+		"--filename", $VM_HDD,
+		"--size",     "102400",
+		"--format",   "vdi",
+	    );
+
+    } # End from scratch
+    else {
+
+	print ("Creating VM using existing HDD\n");
+
+    }
 
     system ($VBOXMANAGE, "storageattach",
 	    $VBOXNAME,
@@ -126,9 +158,9 @@ sub createvm
 	    "--medium",     $VM_HDD,
 	);
 
-    system ($VBOXMANAGE, "startvm",
-	    $VBOXNAME,
-	);
+    #    system ($VBOXMANAGE, "startvm",
+    #	    $VBOXNAME,
+    #	);
 }
 
 sub vboxadditions
@@ -148,15 +180,12 @@ sub vboxadditions
     print "\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; **\n\n";
     #print "\n\n** Also, edit /etc/apt/apt.conf.d/20auto-upgrades to disable unattended upgrades **\n\n";
 
-    system ($VBOXMANAGE, "startvm",
-	    $VBOXNAME,
-	);
+    #    system ($VBOXMANAGE, "startvm",
+    #	    $VBOXNAME,
+    #	);
 
-}
-
-sub finalconfig
-{
-    print "Final Config\n";
+	  start_vm;
+    wait_till_shutdown;
 
     # Unmount Guest Additions DVD
     system ($VBOXMANAGE, "storageattach",
@@ -167,6 +196,12 @@ sub finalconfig
 	    "--type",       "dvddrive",
 	    "--medium",     "none",
 	);
+
+}
+
+sub finalconfig
+{
+    print "Final Config\n";
 
     system ($VBOXMANAGE, "sharedfolder", "add",
 	    $VBOXNAME,
@@ -189,38 +224,39 @@ sub finalconfig
 	    "--automount",
 	);
 
-    system ($VBOXMANAGE, "startvm",
-	    $VBOXNAME,
-	);
+    #    system ($VBOXMANAGE, "startvm",
+    #	    $VBOXNAME,
+    #	);
 
     # In 18.04.1, shared folders are not automatically showing up
     #print "sudo passwd; su; ./media/sf_sharedfolder/scripts/vm/configure-vm-v2019.1.sh\n";
-    print "wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh\n";
+    print "\n\nwget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh\n";
 
 }
 
-sub wait_till_shutdown
+######################################################################
+######################################################################
+
+sub vm_from_scratch
 {
-    print "Waiting for machine to shutdown\n";
-    while (vm_is_running $VBOXNAME)
-    {
-	sleep 3;
-    };
-
-    print "Waiting a few seconds before starting\n";
-    sleep 5;
-
+    # Flow for building from scratch
+    createvm 1;
+    start_vm;
+    wait_till_shutdown;
+    vboxadditions;
+    finalconfig;
+    start_vm;
 }
 
+# Flow for building when a base disk exists
+sub vm_from_existing_hdd
+{
+    # Flow for building from existing hdd
+    createvm 0;
+    finalconfig;
+    start_vm;
+}
 
-
-######################################################################
-######################################################################
-
-createvm;
-wait_till_shutdown;
-vboxadditions;
-wait_till_shutdown;
-finalconfig;
+vm_from_existing_hdd;
 
 print "Exiting.\n";

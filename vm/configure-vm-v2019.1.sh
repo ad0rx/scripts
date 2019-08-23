@@ -9,6 +9,19 @@ PETALINUX_DIR=/app/petalinux/2019.1
 
 SSH_ID=/mnt/downloads/vm_support/ssh-key-virtualbox/*
 
+function do_installs
+{
+    # First Arg is array of packages to install
+    a=("$@")
+    for i in "${a[@]}"
+    do
+	echo; echo $i; echo
+	#sleep 1
+	apt install -y $i
+    done
+
+}
+
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
 if  [ ! "$T" ]
@@ -97,94 +110,67 @@ USER_PKGS=(
     ntp
     xinetd
     tftp
-    tftpd
-    gkrellm
-    screen)
-
-for i in "${USER_PKGS[@]}"
-do
-    echo
-    echo $i
-    echo
-    #sleep 1
-    apt install -y $i
-
-done
-
-sudo -u user gkrellm&
+)
 
 # Install Xilinx Deps listed in UG1144
-XILINX_PKGS=(tofrodos
-	     iproute2
-	     gawk
-	     make
-	     net-tools
-	     libncurses5-dev
-	     tftpd
-	     zlib1g:i386
-	     libssl-dev
-	     flex
-	     bison
-	     libselinux1
-	     gnupg
-	     wget
-	     diffstat
-	     chrpath
-	     socat
-	     xterm
-	     autoconf
-	     libtool
-	     tar
-	     unzip
-	     texinfo
-	     zlib1g-dev
-	     gcc-multilib
-	     build-essential
-	     screen
-	     pax
-	     gzip)
-
-for i in "${XILINX_PKGS[@]}"
-do
-
-    echo
-    echo $i
-    echo
-    #sleep 1
-    apt install -y $i
-
-done
+XILINX_PKGS=(
+    tofrodos
+    iproute2
+    gawk
+    make
+    net-tools
+    libncurses5-dev
+    tftpd
+    zlib1g:i386
+    libssl-dev
+    flex
+    bison
+    libselinux1
+    gnupg
+    wget
+    diffstat
+    chrpath
+    socat
+    xterm
+    autoconf
+    libtool
+    tar
+    unzip
+    texinfo
+    zlib1g-dev
+    gcc-multilib
+    build-essential
+    screen
+    pax
+    gzip
+)
 
 # Install dependencies which are needed but not listed in UG1144
-EXTRA_PKGS=(python
-	    libsdl1.2-dev
-	    libglib2.0-dev
-	    python3-gi
-	    less
-	    lsb-release
-	    fakeroot
-	    libgtk2.0-0
-	    libgtk2.0-dev
-	    cpio
-	    rsync
-	    xorg
-	    expect
-	    dos2unix
-	    sudo
-	    locales
-	    git
-	   )
+EXTRA_PKGS=(
+    python
+    libsdl1.2-dev
+    libglib2.0-dev
+    python3-gi
+    less
+    lsb-release
+    fakeroot
+    libgtk2.0-0
+    libgtk2.0-dev
+    cpio
+    rsync
+    xorg
+    expect
+    dos2unix
+    sudo
+    locales
+    git
+)
 
-for i in "${EXTRA_PKGS[@]}"
-do
-
-    echo
-    echo $i
-    echo
-    #sleep 1
-    apt install -y $i
-
-done
+apt install -y gkrellm
+sudo -u user gkrellm&
+do_installs ${USER_PKGS[@]}
+do_installs ${XILINX_PKGS[@]}
+do_installs ${EXTRA_PKGS[@]}
 
 # NTP
 timedatectl set-ntp yes
