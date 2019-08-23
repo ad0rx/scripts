@@ -22,7 +22,7 @@ $UBUNTU_ISO="D:/bwhitlock/downloads/vm_support/ubuntu-18.04.1-desktop-amd64.iso"
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
 $VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
 
-$VM_SHARED_FOLDER="c:/vm";
+#$VM_SHARED_FOLDER="c:/vm";
 $VM_DOWNLOADS="d:/bwhitlock/downloads";
 $VM_PROJECTS="d:/bwhitlock/Documents/xilinx_projects";
 
@@ -59,7 +59,6 @@ sub wait_till_shutdown
 
     print "Waiting a few seconds before starting\n";
     sleep 5;
-
 }
 
 sub createvm
@@ -158,9 +157,6 @@ sub createvm
 	    "--medium",     $VM_HDD,
 	);
 
-    #    system ($VBOXMANAGE, "startvm",
-    #	    $VBOXNAME,
-    #	);
 }
 
 sub vboxadditions
@@ -178,14 +174,14 @@ sub vboxadditions
 	);
 
     print "\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; **\n\n";
-    #print "\n\n** Also, edit /etc/apt/apt.conf.d/20auto-upgrades to disable unattended upgrades **\n\n";
 
-    #    system ($VBOXMANAGE, "startvm",
-    #	    $VBOXNAME,
-    #	);
-
-	  start_vm;
+    start_vm;
     wait_till_shutdown;
+}
+
+sub finalconfig
+{
+    print "Final Config\n";
 
     # Unmount Guest Additions DVD
     system ($VBOXMANAGE, "storageattach",
@@ -195,19 +191,6 @@ sub vboxadditions
 	    "--device",     "1",
 	    "--type",       "dvddrive",
 	    "--medium",     "none",
-	);
-
-}
-
-sub finalconfig
-{
-    print "Final Config\n";
-
-    system ($VBOXMANAGE, "sharedfolder", "add",
-	    $VBOXNAME,
-	    "--name",    "sharedfolder",
-	    "--hostpath", $VM_SHARED_FOLDER,
-	    "--automount",
 	);
 
     system ($VBOXMANAGE, "sharedfolder", "add",
@@ -224,12 +207,7 @@ sub finalconfig
 	    "--automount",
 	);
 
-    #    system ($VBOXMANAGE, "startvm",
-    #	    $VBOXNAME,
-    #	);
-
     # In 18.04.1, shared folders are not automatically showing up
-    #print "sudo passwd; su; ./media/sf_sharedfolder/scripts/vm/configure-vm-v2019.1.sh\n";
     print "\n\nwget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh\n";
 
 }

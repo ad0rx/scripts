@@ -110,6 +110,7 @@ USER_PKGS=(
     ntp
     xinetd
     tftp
+    dkms
 )
 
 # Install Xilinx Deps listed in UG1144
