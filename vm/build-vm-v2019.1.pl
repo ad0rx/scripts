@@ -177,11 +177,6 @@ sub vboxadditions
 
     start_vm;
     wait_till_shutdown;
-}
-
-sub finalconfig
-{
-    print "Final Config\n";
 
     # Unmount Guest Additions DVD
     system ($VBOXMANAGE, "storageattach",
@@ -192,6 +187,12 @@ sub finalconfig
 	    "--type",       "dvddrive",
 	    "--medium",     "none",
 	);
+
+}
+
+sub finalconfig
+{
+    print "Final Config\n";
 
     system ($VBOXMANAGE, "sharedfolder", "add",
 	    $VBOXNAME,
