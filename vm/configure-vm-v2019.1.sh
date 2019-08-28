@@ -134,6 +134,7 @@ XILINX_PKGS=(
     xterm
     autoconf
     libtool
+    libtool-bin
     tar
     unzip
     texinfo
@@ -164,6 +165,8 @@ EXTRA_PKGS=(
     sudo
     locales
     git
+    xvfb
+    update-inetd
 )
 
 apt install -y gkrellm
