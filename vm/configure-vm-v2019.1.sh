@@ -22,6 +22,13 @@ function do_installs
 
 }
 
+# Configure apt
+echo "APT::Install-Recommends false;"               > /etc/apt/apt.conf.d/00norecommends
+echo "APT::AutoRemove::RecommendsImportant false;" >> /etc/apt/apt.conf.d/00norecommends
+echo "APT::Install-Suggests false;"                 > /etc/apt/apt.conf.d/00nosuggests
+echo "APT::AutoRemove::SuggestsImportant false;"   >> /etc/apt/apt.conf.d/00nosuggests
+apt update
+
 # Add user to vboxsf group
 T=$(groups user | grep vboxsf)
 if  [ ! "$T" ]
@@ -56,13 +63,6 @@ then
 fi
 
 set -e
-
-# Configure apt
-echo "APT::Install-Recommends false;"               > /etc/apt/apt.conf.d/00norecommends
-echo "APT::AutoRemove::RecommendsImportant false;" >> /etc/apt/apt.conf.d/00norecommends
-echo "APT::Install-Suggests false;"                 > /etc/apt/apt.conf.d/00nosuggests
-echo "APT::AutoRemove::SuggestsImportant false;"   >> /etc/apt/apt.conf.d/00nosuggests
-apt update
 
 # Grab SSH ID
 mkdir -p /home/user/.ssh
