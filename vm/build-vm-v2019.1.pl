@@ -209,7 +209,7 @@ sub finalconfig
 	);
 
     # In 18.04.1, shared folders are not automatically showing up
-    print "\n\nwget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh\n";
+    print "\n\n./get-config.sh; chmod +x configure-vm*; sudo ./configure-vm*\n";
 
 }
 
