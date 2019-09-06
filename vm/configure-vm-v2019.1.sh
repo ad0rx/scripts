@@ -169,6 +169,7 @@ EXTRA_PKGS=(
     update-inetd
 )
 
+apt update
 apt install -y gkrellm
 sudo -u user gkrellm&
 do_installs ${USER_PKGS[@]}
