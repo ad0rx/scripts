@@ -57,6 +57,13 @@ fi
 
 set -e
 
+# Configure apt
+echo "APT::Install-Recommends false;"               > /etc/apt/apt.conf.d/00norecommends
+echo "APT::AutoRemove::RecommendsImportant false;" >> /etc/apt/apt.conf.d/00norecommends
+echo "APT::Install-Suggests false;"                 > /etc/apt/apt.conf.d/00nosuggests
+echo "APT::AutoRemove::SuggestsImportant false;"   >> /etc/apt/apt.conf.d/00nosuggests
+apt update
+
 # Grab SSH ID
 mkdir -p /home/user/.ssh
 cp -r ${SSH_ID} /home/user/.ssh
@@ -169,7 +176,6 @@ EXTRA_PKGS=(
     update-inetd
 )
 
-apt update
 apt install -y gkrellm
 sudo -u user gkrellm&
 do_installs ${USER_PKGS[@]}
