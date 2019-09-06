@@ -236,6 +236,24 @@ sub vm_from_existing_hdd
     start_vm;
 }
 
-vm_from_existing_hdd;
+my $build_type = "";
+
+if ( defined $ARGV[0] )
+{
+    $build_type = $ARGV[0];
+}
+
+if ( $build_type eq "new" )
+{
+    print "Building a new base OS drive\n";
+    sleep 5;
+    vm_from_scratch
+}
+else
+{
+    print "Building a VM from existing base OS drive\n";
+    sleep 5;
+    vm_from_existing_hdd;
+}
 
 print "Exiting.\n";
