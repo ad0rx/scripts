@@ -24,7 +24,7 @@ $VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
 
 #$VM_SHARED_FOLDER="c:/vm";
 $VM_DOWNLOADS="d:/bwhitlock/downloads";
-$VM_PROJECTS="d:/bwhitlock/Documents/xilinx_projects";
+$VM_PROJECTS="d:/bwhitlock/projects/2019.1";
 
 sub vm_is_running
 {
