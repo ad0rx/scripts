@@ -1,12 +1,10 @@
 use IPC::Run 'run';
 use warnings;
 
-print "Running...\n";
-
 $VBOXNAME="2019.1";
 $MAC_ADDRESS="080027be962b";
 
-$VBOXMANAGE="d:/bwhitlock/virtualbox5.1.22/vboxmanage.exe";
+$VBOXMANAGE="C:/Program Files/Oracle/VirtualBox/vboxmanage.exe";
 $VBOX_GUEST_ADDITIONS="d:/bwhitlock/virtualbox5.1.22/VBoxGuestAdditions.iso";
 
 #$VM_BASE_FOLDER="d:/bwhitlock/scripted-vbox";
@@ -22,7 +20,7 @@ $UBUNTU_ISO="D:/bwhitlock/downloads/vm_support/ubuntu-18.04.1-desktop-amd64.iso"
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
 $VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
 
-#$VM_SHARED_FOLDER="c:/vm";
+# Shared Folders
 $VM_DOWNLOADS="d:/bwhitlock/downloads";
 $VM_PROJECTS="d:/bwhitlock/projects/2019.1";
 
@@ -65,6 +63,7 @@ sub createvm
 {
 
     my $from_scratch = shift;
+    my $hdd_file     = shift;
 
     print "Creating VM\n";
     system ($VBOXMANAGE, "--version");
@@ -84,7 +83,7 @@ sub createvm
 	    "--pae",      "on",
 	    "--hwvirtex", "on",
 	    "--paravirtprovider", "default",
-	    "--accelerate3d",      "on",
+	    "--accelerate3d",      "off",
 	    "--accelerate2dvideo", "off",
 	    "--boot1", "dvd",
 	    "--boot2", "disk",
@@ -144,8 +143,9 @@ sub createvm
     } # End from scratch
     else {
 
-	print ("Creating VM using existing HDD\n");
-
+	print ("Creating VM using existing HDD: $hdd_file\n");
+	$VM_HDD = "$VM_BASE_FOLDER/$hdd_file";
+	#print ("VM_HDD: $VM_HDD\n");
     }
 
     system ($VBOXMANAGE, "storageattach",
@@ -208,8 +208,15 @@ sub finalconfig
 	    "--automount",
 	);
 
+    system ($VBOXMANAGE, "sharedfolder", "add",
+	    $VBOXNAME,
+	    "--name",     "scripts",
+	    "--hostpath", "$VM_BASE_FOLDER/scripts",
+	    "--automount",
+	);
+
     # In 18.04.1, shared folders are not automatically showing up
-    print "\n\n./get-config.sh; chmod +x configure-vm*; sudo ./configure-vm*\n";
+    #print "\n\n./get-config.sh; chmod +x configure-vm*; sudo ./configure-vm*\n";
 
 }
 
@@ -230,30 +237,50 @@ sub vm_from_scratch
 # Flow for building when a base disk exists
 sub vm_from_existing_hdd
 {
+    my $hdd_file = shift;
+
     # Flow for building from existing hdd
-    createvm 0;
+    createvm (0, $hdd_file);
     finalconfig;
     start_vm;
 }
 
-my $build_type = "";
+sub print_usage
+{
+    print "\n\n";
+    print "Usage: build-vm-v2019.1.pl <BUILD_TYPE> <HDD_FILE>\n";
+    print "BUILD_TYPE: new or existing\n";
+    print "HDD_FILE: Path to existing vdi to use as main hdd\n";
+}
 
-if ( defined $ARGV[0] )
+my $build_type = "";
+my $hdd_file   = "";
+
+if ( defined $ARGV[0] && defined $ARGV[1] )
 {
     $build_type = $ARGV[0];
+    $hdd_file   = $ARGV[1];
+}
+else
+{
+    print_usage;
+    exit;
 }
 
 if ( $build_type eq "new" )
 {
     print "Building a new base OS drive\n";
-    sleep 5;
-    vm_from_scratch
+    sleep ( 5 );
+    #vm_from_scratch
 }
-else
+elsif ( $build_type eq "existing" )
 {
     print "Building a VM from existing base OS drive\n";
     sleep 5;
-    vm_from_existing_hdd;
+    vm_from_existing_hdd ( $hdd_file );
 }
-
-print "Exiting.\n";
+else
+{
+    print "\nERROR: Invalid BUILD_TYPE:  \"$build_type\"";
+    print_usage;
+}
