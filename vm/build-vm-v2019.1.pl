@@ -1,20 +1,18 @@
 use IPC::Run 'run';
 use warnings;
 
-$VBOXNAME="2019.1";
+$VBOXNAME="Ubuntu-16.04.5";
 $MAC_ADDRESS="080027be962b";
 
 $VBOXMANAGE="C:/Program Files/Oracle/VirtualBox/vboxmanage.exe";
 $VBOX_GUEST_ADDITIONS="d:/bwhitlock/virtualbox5.1.22/VBoxGuestAdditions.iso";
 
-#$VM_BASE_FOLDER="d:/bwhitlock/scripted-vbox";
 $VM_BASE_FOLDER="c:/vm";
 $VM_MEMORY_SIZE="8192";
 $VM_VRAM_SIZE="128";
 $VM_CPUS="2";
 $VM_CPUEXECUTION_CAP="90";
 
-#$UBUNTU_ISO="c:/vm/ubuntu-18.04.1-desktop-amd64.iso";
 $UBUNTU_ISO="D:/bwhitlock/downloads/vm_support/ubuntu-18.04.1-desktop-amd64.iso";
 
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
@@ -30,8 +28,6 @@ sub vm_is_running
 
     run [ $VBOXMANAGE, "showvminfo", $vm_name ], ">", \my $stdout;
 
-    #print $stdout, "\n";
-
     if ( $stdout =~ /State:\s*(powered off)/ )
     {
 	return 0;
@@ -43,8 +39,7 @@ sub vm_is_running
 sub start_vm
 {
     system ($VBOXMANAGE, "startvm",
-	    $VBOXNAME,
-	);
+	    $VBOXNAME);
 }
 
 sub wait_till_shutdown
@@ -216,7 +211,7 @@ sub finalconfig
 	);
 
     # In 18.04.1, shared folders are not automatically showing up
-    #print "\n\n./get-config.sh; chmod +x configure-vm*; sudo ./configure-vm*\n";
+    print "sudo passwd root; su; #./media/sf_scripts/configure-vm-v2019.1.sh\n";
 
 }
 
@@ -270,13 +265,13 @@ else
 if ( $build_type eq "new" )
 {
     print "Building a new base OS drive\n";
-    sleep ( 5 );
-    #vm_from_scratch
+    sleep (5);
+    vm_from_scratch
 }
 elsif ( $build_type eq "existing" )
 {
     print "Building a VM from existing base OS drive\n";
-    sleep 5;
+    sleep (5);
     vm_from_existing_hdd ( $hdd_file );
 }
 else
