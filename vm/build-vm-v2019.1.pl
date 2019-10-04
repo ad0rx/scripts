@@ -22,6 +22,9 @@ $VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
 $VM_DOWNLOADS="d:/bwhitlock/downloads";
 $VM_PROJECTS="d:/bwhitlock/projects/2019.1";
 
+# PetaLinux Project Drive
+$PETALINUX_PROJECTS="D:/bwhitlock/downloads/vm_support/petalinux-projects.vdi";
+
 sub vm_is_running
 {
     my $vm_name = shift;
@@ -44,14 +47,14 @@ sub start_vm
 
 sub wait_till_shutdown
 {
-    print "Waiting for machine to shutdown\n";
+    print ("Waiting for machine to shutdown\n");
     while (vm_is_running $VBOXNAME)
     {
-	sleep 3;
+	sleep (3);
     };
 
-    print "Waiting a few seconds before starting\n";
-    sleep 5;
+    print ("Waiting a few seconds before starting\n");
+    sleep (5);
 }
 
 sub createvm
@@ -60,7 +63,7 @@ sub createvm
     my $from_scratch = shift;
     my $hdd_file     = shift;
 
-    print "Creating VM\n";
+    print ("Creating VM\n");
     system ($VBOXMANAGE, "--version");
     system ($VBOXMANAGE, "createvm",
 	    "--name",    $VBOXNAME,
@@ -140,7 +143,6 @@ sub createvm
 
 	print ("Creating VM using existing HDD: $hdd_file\n");
 	$VM_HDD = "$VM_BASE_FOLDER/$hdd_file";
-	#print ("VM_HDD: $VM_HDD\n");
     }
 
     system ($VBOXMANAGE, "storageattach",
@@ -152,12 +154,21 @@ sub createvm
 	    "--medium",     $VM_HDD,
 	);
 
+    system ($VBOXMANAGE, "storageattach",
+	    $VBOXNAME,
+	    "--storagectl", "SATA",
+	    "--port",       "1",
+	    "--device",     "0",
+	    "--type",       "hdd",
+	    "--medium",     $PETALINUX_PROJECTS,
+	);
+
 }
 
 sub vboxadditions
 {
 
-    print "VBox Additions\n";
+    print ("VBox Additions\n");
 
     system ($VBOXMANAGE, "storageattach",
 	    $VBOXNAME,
@@ -168,10 +179,10 @@ sub vboxadditions
 	    "--medium",     $VBOX_GUEST_ADDITIONS,
 	);
 
-    print "\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; **\n\n";
+    print ("\n\n** When system boots, cd /media/user/VBOX~; sudo VBoxL~; **\n\n");
 
-    start_vm;
-    wait_till_shutdown;
+    start_vm ();
+    wait_till_shutdown ();
 
     # Unmount Guest Additions DVD
     system ($VBOXMANAGE, "storageattach",
@@ -187,7 +198,7 @@ sub vboxadditions
 
 sub finalconfig
 {
-    print "Final Config\n";
+    print ("Final Config\n");
 
     system ($VBOXMANAGE, "sharedfolder", "add",
 	    $VBOXNAME,
@@ -211,7 +222,7 @@ sub finalconfig
 	);
 
     # In 18.04.1, shared folders are not automatically showing up
-    print "sudo passwd root; su; #./media/sf_scripts/configure-vm-v2019.1.sh\n";
+    print ("sudo passwd root; su; #./media/sf_scripts/configure-vm-v2019.1.sh\n");
 
 }
 
@@ -221,12 +232,12 @@ sub finalconfig
 sub vm_from_scratch
 {
     # Flow for building from scratch
-    createvm 1;
-    start_vm;
-    wait_till_shutdown;
-    vboxadditions;
-    finalconfig;
-    start_vm;
+    createvm (1);
+    start_vm ();
+    wait_till_shutdown ();
+    vboxadditions ();
+    finalconfig ();
+    start_vm ();
 }
 
 # Flow for building when a base disk exists
@@ -236,16 +247,16 @@ sub vm_from_existing_hdd
 
     # Flow for building from existing hdd
     createvm (0, $hdd_file);
-    finalconfig;
-    start_vm;
+    finalconfig ();
+    start_vm ();
 }
 
 sub print_usage
 {
-    print "\n\n";
-    print "Usage: build-vm-v2019.1.pl <BUILD_TYPE> <HDD_FILE>\n";
-    print "BUILD_TYPE: new or existing\n";
-    print "HDD_FILE: Path to existing vdi to use as main hdd\n";
+    print ("\n\n");
+    print ("Usage: build-vm-v2019.1.pl <BUILD_TYPE> <HDD_FILE>\n");
+    print ("BUILD_TYPE: new or existing\n");
+    print ("HDD_FILE: Path to existing vdi to use as main hdd\n");
 }
 
 my $build_type = "";
@@ -258,24 +269,24 @@ if ( defined $ARGV[0] && defined $ARGV[1] )
 }
 else
 {
-    print_usage;
+    print_usage ();
     exit;
 }
 
 if ( $build_type eq "new" )
 {
-    print "Building a new base OS drive\n";
+    print ( "Building a new base OS drive\n" );
     sleep (5);
-    vm_from_scratch
+    vm_from_scratch ();
 }
 elsif ( $build_type eq "existing" )
 {
-    print "Building a VM from existing base OS drive\n";
+    print ("Building a VM from existing base OS drive\n");
     sleep (5);
     vm_from_existing_hdd ( $hdd_file );
 }
 else
 {
-    print "\nERROR: Invalid BUILD_TYPE:  \"$build_type\"";
-    print_usage;
+    print ("\nERROR: Invalid BUILD_TYPE:  \"$build_type\"");
+    print_usage ();
 }
