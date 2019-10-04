@@ -48,7 +48,12 @@ then
     #sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
 
     # Add shared folders to fstab
-    #echo "Configuring shared folder fstab"
+    echo "Configuring shared folder fstab"
+    mkdir -p /mnt/petalinux_projects
+    chown -R user:xilinx /mnt/petalinux_projects
+    chmod -R 775 /mnt/petalinux_projects
+    chmod -R g+s /mnt/petalinux_projects
+    echo '/dev/sdb  /mnt/petalinux-projects  ext4  rw  0  0' >> /etc/fstab
     #mkdir -p /mnt/{downloads,projects}
     #echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
     #echo 'projects     /mnt/projects  vboxsf rw 0 0' >> /etc/fstab
