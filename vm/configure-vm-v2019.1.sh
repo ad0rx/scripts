@@ -4,10 +4,10 @@
 # wget https://raw.githubusercontent.com/ad0rx/scripts/master/vm/configure-vm-v2019.1.sh
 # run with sudo
 
-PETALINUX=/mnt/downloads/petalinux/petalinux-v2019.1-final-installer.run
+PETALINUX=/media/sf_downloads/petalinux/petalinux-v2019.1-final-installer.run
 PETALINUX_DIR=/app/petalinux/2019.1
 
-SSH_ID=/mnt/downloads/vm_support/ssh-key-virtualbox/*
+SSH_ID=/media/sf_downloads/vm_support/ssh-key-virtualbox/*
 
 function do_installs
 {
@@ -48,10 +48,10 @@ then
     #sudo -u user gsettings set org.gnome.desktop.screensaver lock-enabled false
 
     # Add shared folders to fstab
-    echo "Configuring shared folder fstab"
-    mkdir -p /mnt/{downloads,projects}
-    echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
-    echo 'projects     /mnt/projects  vboxsf rw 0 0' >> /etc/fstab
+    #echo "Configuring shared folder fstab"
+    #mkdir -p /mnt/{downloads,projects}
+    #echo 'downloads    /mnt/downloads vboxsf rw 0 0' >> /etc/fstab
+    #echo 'projects     /mnt/projects  vboxsf rw 0 0' >> /etc/fstab
 
     # Update the system
     #echo "Updating the system"
