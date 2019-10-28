@@ -132,7 +132,6 @@ XILINX_PKGS=(
     make
     net-tools
     libncurses5-dev
-    tftpd
     zlib1g:i386
     libssl-dev
     flex
@@ -179,6 +178,7 @@ EXTRA_PKGS=(
     git
     xvfb
     update-inetd
+    tftpd
 )
 
 apt install -y gkrellm
