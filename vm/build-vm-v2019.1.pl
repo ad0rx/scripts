@@ -13,7 +13,7 @@ $VM_BASE_FOLDER="c:/vm";
 $VM_MEMORY_SIZE="8192";
 $VM_VRAM_SIZE="128";
 $VM_CPUS="2";
-$VM_CPUEXECUTION_CAP="100";
+$VM_CPUEXECUTION_CAP="75";
 
 $UBUNTU_ISO="D:/bwhitlock/downloads/vm_support/ubuntu-18.04.1-desktop-amd64.iso";
 
