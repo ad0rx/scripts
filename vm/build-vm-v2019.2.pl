@@ -1,31 +1,34 @@
-#c:\Program Files\Oracle\VirtualBox\VBoxManage.exe" internalcommands sethduuid ubuntu-16.04.5-base-os.vdi
-
 use IPC::Run 'run';
 use warnings;
 
-$VBOXNAME="Ubuntu-16.04.5";
+$OS_VERSION="ubuntu-16.04.5";
+$XILINX_VERSION="2019.2";
+
+$VBOXNAME="${OS_VERSION}-${XILINX_VERSION}";
 $MAC_ADDRESS="080027be962b";
 
-$VBOXMANAGE="C:/Program Files/Oracle/VirtualBox/vboxmanage.exe";
-$VBOX_GUEST_ADDITIONS="d:/bwhitlock/virtualbox5.1.22/VBoxGuestAdditions.iso";
+$VBOXMANAGE="c:/Program Files/Oracle/VirtualBox/vboxmanage.exe";
+$VBOX_GUEST_ADDITIONS="c:/Program Files/Oracle/VirtualBoxVBoxGuestAdditions.iso";
+$Z7="c:/Program Files/7-Zip/7z.exe";
 
-$VM_BASE_FOLDER="c:/vm";
+$VM_BASE_FOLDER="d:/bwhitlock/vm_support/vms";
 $VM_MEMORY_SIZE="8192";
 $VM_VRAM_SIZE="128";
 $VM_CPUS="2";
-$VM_CPUEXECUTION_CAP="75";
+$VM_CPUEXECUTION_CAP="100";
 
-$UBUNTU_ISO="D:/bwhitlock/downloads/vm_support/ubuntu-18.04.1-desktop-amd64.iso";
+$UBUNTU_ISO="d:/bwhitlock/vm_support/ubuntu-16.04.5-desktop-amd64.iso";
 
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
-$VM_HDD="$VM_BASE_FOLDER/$VM_HDD_FILENAME";
+$VM_HDD="${VM_BASE_FOLDER}/${VBOXNAME}/${VM_HDD_FILENAME}";
 
 # Shared Folders
 $VM_DOWNLOADS="d:/bwhitlock/downloads";
-$VM_PROJECTS="d:/bwhitlock/projects/2019.1";
+$VM_PROJECTS="d:/bwhitlock/projects/${XILINX_VERSION}";
+$VM_SCRIPTS="c:/vm/scripts";
 
 # PetaLinux Project Drive
-$PETALINUX_PROJECTS="D:/bwhitlock/downloads/vm_support/petalinux-projects.vdi";
+#$PETALINUX_PROJECTS="d:/bwhitlock/vm_support/vms/drives/petalinux-projects.vdi";
 
 sub vm_is_running
 {
@@ -57,6 +60,15 @@ sub wait_till_shutdown
 
     print ("Waiting a few seconds before starting\n");
     sleep (5);
+}
+
+sub setuuid
+{
+    my $hdd_file = shift;
+    print ("Setting UUID on ${hdd_file}\n");
+    system ($VBOXMANAGE, "internalcommands",
+	    "sethduuid", ${hdd_file});
+
 }
 
 sub createvm
@@ -144,7 +156,8 @@ sub createvm
     else {
 
 	print ("Creating VM using existing HDD: $hdd_file\n");
-	$VM_HDD = "$VM_BASE_FOLDER/$hdd_file";
+	$VM_HDD = "$hdd_file";
+
     }
 
     system ($VBOXMANAGE, "storageattach",
@@ -156,14 +169,14 @@ sub createvm
 	    "--medium",     $VM_HDD,
 	);
 
-    system ($VBOXMANAGE, "storageattach",
-	    $VBOXNAME,
-	    "--storagectl", "SATA",
-	    "--port",       "1",
-	    "--device",     "0",
-	    "--type",       "hdd",
-	    "--medium",     $PETALINUX_PROJECTS,
-	);
+#    system ($VBOXMANAGE, "storageattach",
+#	    $VBOXNAME,
+#	    "--storagectl", "SATA",
+#	    "--port",       "1",
+#	    "--device",     "0",
+#	    "--type",       "hdd",
+#	    "--medium",     $PETALINUX_PROJECTS,
+#	);
 
 }
 
@@ -219,12 +232,12 @@ sub finalconfig
     system ($VBOXMANAGE, "sharedfolder", "add",
 	    $VBOXNAME,
 	    "--name",     "scripts",
-	    "--hostpath", "$VM_BASE_FOLDER/scripts",
+	    "--hostpath", "$VM_SCRIPTS",
 	    "--automount",
 	);
 
     # In 18.04.1, shared folders are not automatically showing up
-    print ("sudo passwd root; su; #./media/sf_scripts/configure-vm-v2019.1.sh\n");
+    print ("sudo passwd root; su; #./media/sf_scripts/configure-vm-v${XILINX_VERSION}.sh\n");
 
 }
 
@@ -245,7 +258,35 @@ sub vm_from_scratch
 # Flow for building when a base disk exists
 sub vm_from_existing_hdd
 {
-    my $hdd_file = shift;
+    my $zip_hdd_file = shift;
+    my $hdd_file     = shift;
+
+    # Unzip the hdd
+    system (${Z7},
+	    "e",  "${zip_hdd_file}",
+	    "-o${VM_BASE_FOLDER}/${VBOXNAME}");
+
+    my $some_dir = "${VM_BASE_FOLDER}/${VBOXNAME}";
+    opendir (my $dh, $some_dir);
+
+    while (readdir $dh)
+    {
+	my $file = "$some_dir/$_";
+	if ($file =~ /base-os/)
+	{
+	    #print ("file: $file\n");
+	    $zip_hdd_file = $_;
+	    #print ("zip_hdd_file: $zip_hdd_file\n");
+	}
+
+    }
+    #print ("some_dir/zip_hdd_file: ${some_dir}/${zip_hdd_file}\n");
+    #print ("some_dir/VM_HDD_FILE:  ${some_dir}/${VM_HDD_FILENAME}\n");
+    rename ("${some_dir}/${zip_hdd_file}",
+	    "${some_dir}/${VM_HDD_FILENAME}");
+
+    # Change the UUID on the HDD to prevent collision with existing VMs
+    setuuid ($hdd_file);
 
     # Flow for building from existing hdd
     createvm (0, $hdd_file);
@@ -256,18 +297,19 @@ sub vm_from_existing_hdd
 sub print_usage
 {
     print ("\n\n");
-    print ("Usage: build-vm-v2019.1.pl <BUILD_TYPE> <HDD_FILE>\n");
-    print ("BUILD_TYPE: new or existing\n");
-    print ("HDD_FILE: Path to existing vdi to use as main hdd\n");
+    print ("Usage: build-vm-v${XILINX_VERSION}.pl <NEW_OR_EXISTING> <ZIP_HDD_FILE>\n");
+    print ("NEW_OR_EXISTING: 'new' or 'existing'\n");
+    print ("ZIP_HDD_FILE   : Path to existing 7z'd drive to use as OS hdd\n");
 }
 
-my $build_type = "";
+my $new_or_existing = "";
 my $hdd_file   = "";
 
 if ( defined $ARGV[0] && defined $ARGV[1] )
 {
-    $build_type = $ARGV[0];
-    $hdd_file   = $ARGV[1];
+    $new_or_existing = $ARGV[0];
+    $zip_hdd_file    = $ARGV[1];
+    $hdd_file        = $VM_HDD;
 }
 else
 {
@@ -275,20 +317,20 @@ else
     exit;
 }
 
-if ( $build_type eq "new" )
+if ( $new_or_existing eq "new" )
 {
     print ( "Building a new base OS drive\n" );
     sleep (5);
     vm_from_scratch ();
 }
-elsif ( $build_type eq "existing" )
+elsif ( $new_or_existing eq "existing" )
 {
     print ("Building a VM from existing base OS drive\n");
     sleep (5);
-    vm_from_existing_hdd ( $hdd_file );
+    vm_from_existing_hdd ( $zip_hdd_file, $hdd_file );
 }
 else
 {
-    print ("\nERROR: Invalid BUILD_TYPE:  \"$build_type\"");
+    print ("\nERROR: Invalid NEW_OR_EXISTING:  \"$new_or_existing\"");
     print_usage ();
 }
