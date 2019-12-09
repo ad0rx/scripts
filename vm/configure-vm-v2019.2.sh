@@ -21,9 +21,8 @@ function do_installs
     for i in "${a[@]}"
     do
 	echo; echo $i; echo
-	sleep 1
-	#apt install -y $i
-	yum install --assumeyes $i
+	#sleep 1
+	apt install -y $i
     done
 
 }
@@ -31,15 +30,13 @@ function do_installs
 function setup_system
 {
     # Configure apt
-    #sudo apt-get remove unattended-upgrades
+    sudo apt-get remove unattended-upgrades
     #echo "APT::Install-Recommends false;"               > /etc/apt/apt.conf.d/00norecommends
     #echo "APT::AutoRemove::RecommendsImportant false;" >> /etc/apt/apt.conf.d/00norecommends
     #echo "APT::Install-Suggests false;"                 > /etc/apt/apt.conf.d/00nosuggests
     #echo "APT::AutoRemove::SuggestsImportant false;"   >> /etc/apt/apt.conf.d/00nosuggests
-    #apt update
+    apt update
 
-    ifup enp0s3
-    sed -i s/ONBOOT=no/ONBOOT=yes/ /etc/sysconfig/network-scripts/ifcfg-enp0s3
 }
 
 function setup_user_group
@@ -100,8 +97,7 @@ function setup_user
     echo "Installing git"
     #dpkg --configure -a
     #rm -f /var/lib/dpkg/lock
-    #apt install -y git screen
-    yum install -y git screen
+    apt install -y git screen
     sudo -u user git config --global user.email "bradley.whitlock@gmail.com"
 
     # Get scripts
@@ -151,20 +147,17 @@ USER_PKGS=(
 
 # Install Xilinx Deps listed in UG1144
 XILINX_PKGS=(
-    dos2unix
+    tofrodos
     iproute
     gawk
-    gcc
-    gcc-c++
     make
     net-tools
-    ncurses-dev
-    tftp-server
-    zlib-devel
-    openssl-devel
+    libncurses5-dev
+    zlib1g:i386
+    libssl-dev
     flex
     bison
-    libselinux
+    libselinux1
     gnupg
     wget
     diffstat
@@ -173,25 +166,23 @@ XILINX_PKGS=(
     xterm
     autoconf
     libtool
+    libtool-bin
     tar
     unzip
     texinfo
-    SDL-devel
-    glibc-devel
-    glibc
-    glib2-devel
-    automake
+    zlib1g-dev
+    gcc-multilib
+    build-essential
     screen
     pax
     gzip
-    libstdc++
 )
 
 # Install dependencies which are needed but not listed in UG1144
 EXTRA_PKGS=(
     #    python
     #    libsdl1.2-dev
-#	libglib2.0-dev
+	libglib2.0-dev
     #    python3-gi
     #    less
     #    lsb-release
@@ -207,24 +198,20 @@ EXTRA_PKGS=(
     #    locales
     #    git
     #    xvfb
- #   update-inetd
-  #  tftpd
+    update-inetd
+    tftpd
 )
 
 XRT_PKGS=(
-    epel-release
-    kernel-headers-`uname -r`
-    kernel-devel-`uname -r`
-    ocl-icd
-    ocl-icd-devel
+    ocl-icd-libopencl1
     opencl-headers
+    ocl-icd-opencl-dev
 )
 
 function install_pkgs
 {
-    #apt install -y gkrellm
-    #yum install -y gkrellm
-    #sudo -u user gkrellm&
+    apt install -y gkrellm
+    sudo -u user gkrellm&
     do_installs ${USER_PKGS[@]}
     do_installs ${XILINX_PKGS[@]}
     do_installs ${EXTRA_PKGS[@]}
@@ -247,7 +234,7 @@ function install_petalinux
 {
     #install petalinux
     echo; echo "Installing PetaLinux"; echo
-#    sudo dpkg-reconfigure dash
+    sudo dpkg-reconfigure dash
     mkdir -p /tftpboot
     chmod 777 /tftpboot
     chown -R nobody /tftpboot
@@ -265,27 +252,27 @@ function install_petalinux
     chmod -R 755 /app
 
     # Disable postinst hooks so that zcu102 builds succeed
-#    files=(
-#	update_font_cache
-#	update_gio_module_cache
-#	update_gtk_immodules_cache
-#	update_icon_cache
-#	update_pixbuf_cache
-#	)
-#    pushd $PETALINUX_DIR/components/yocto/source/aarch64/layers/core/scripts/postinst-intercepts
-#    mkdir hold
-#    for f in "${files[@]}"
-#    do
-#	mv $f hold
-#    done
-#    popd
+    @files = (
+	update_font_cache
+	update_gio_module_cache
+	update_gtk_immodules_cache
+	update_icon_cache
+	update_pixbuf_cache
+	)
+    pushd $PETALINUX_DIR/components/yocto/source/aarch64/layers/core/scripts/postinst-intercepts
+    mkdir hold
+    for f in "${files[@]}"
+    do
+	mv $f hold
+    done
+    popd
 
     # Set ownership on home, for some reason root takes some files
     chown -R user:user /home/user
 }
 
 # Edge platforms download from Xilinx.com Downloads
-function install_xrt_0
+function install_xrt
 {
     do_installs ${XRT_PKGS[@]}
 
@@ -293,16 +280,10 @@ function install_xrt_0
     #pip install --upgrade pip
     #python -m pip install numpy
 
-#    pip install setuptools
+    pip install setuptools
 
-    # NEED TO REBOOT
-}
-
-function install_xrt_1
-{
     # Install XRT
-    #apt install ${XRT}
-    yum install ${XRT}
+    apt install ${XRT}
 
     # Extract ZCU102 platform to Vitis installation dir
     unzip ${EDGE_PLATFORM_ZCU102} -d ${EDGE_PLATFORM_DIR}
@@ -321,8 +302,7 @@ function main
     install_petalinux
 
     #NEED TO INSTALL VITIS FIRST
-    #install_xrt_0
-    #install_xrt_1
+    #install_xrt
 
     # Generate a SYSROOT for ZCU102
 

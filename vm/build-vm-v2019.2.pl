@@ -1,18 +1,14 @@
-# C:\vm\scripts\vm>"c:\Program Files\Oracle\VirtualBox\VBoxManage.exe" guestcontrol "centos-7.6.1810-2019.2" --username user run --exe /usr/bin/ls
-
 use IPC::Run 'run';
 use warnings;
 
-$OS_VERSION="centos-7.6.1810";
+$OS_VERSION="ubuntu-16.04.5";
 $XILINX_VERSION="2019.2";
 
 $VBOXNAME="${OS_VERSION}-${XILINX_VERSION}";
-$ETHERNET_ADAPTER="Intel(R) Ethernet Connection I219-LM";
-#$ETHERNET_ADAPTER="Intel(R) Dual Band Wireless-AC 8260";
 $MAC_ADDRESS="080027be962b";
 
 $VBOXMANAGE="c:/Program Files/Oracle/VirtualBox/vboxmanage.exe";
-$VBOX_GUEST_ADDITIONS="c:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso";
+$VBOX_GUEST_ADDITIONS="c:/Program Files/Oracle/VirtualBoxVBoxGuestAdditions.iso";
 $Z7="c:/Program Files/7-Zip/7z.exe";
 
 $VM_BASE_FOLDER="d:/bwhitlock/vm_support/vms";
@@ -21,21 +17,15 @@ $VM_VRAM_SIZE="128";
 $VM_CPUS="2";
 $VM_CPUEXECUTION_CAP="100";
 
-#$OS_TYPE="Ubuntu_64";
-$OS_TYPE="RedHat_64";
-$OS_INSTALL_ISO="d:/bwhitlock/vm_support/raw-os-iso/CentOS-7-x86_64-DVD-1810.iso";
+$UBUNTU_ISO="d:/bwhitlock/vm_support/ubuntu-16.04.5-desktop-amd64.iso";
 
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
 $VM_HDD="${VM_BASE_FOLDER}/${VBOXNAME}/${VM_HDD_FILENAME}";
 
 # Shared Folders
-%SHARED_FOLDERS =
-    (
-     downloads => "d:/bwhitlock/downloads",
-     projects  => "d:/bwhitlock/projects/${XILINX_VERSION}",
-     scripts   => "c:/vm/scripts",
-     support   => "d:/bwhitlock/vm_support",
-    );
+$VM_DOWNLOADS="d:/bwhitlock/downloads";
+$VM_PROJECTS="d:/bwhitlock/projects/${XILINX_VERSION}";
+$VM_SCRIPTS="c:/vm/scripts";
 
 # PetaLinux Project Drive
 #$PETALINUX_PROJECTS="d:/bwhitlock/vm_support/vms/drives/petalinux-projects.vdi";
@@ -92,7 +82,7 @@ sub createvm
     system ($VBOXMANAGE, "createvm",
 	    "--name",    $VBOXNAME,
 	    "--basefolder", $VM_BASE_FOLDER,
-	    "--ostype",     ${OS_TYPE},
+	    "--ostype",  "Ubuntu_64",
 	    "--register",
 	);
 
@@ -116,7 +106,7 @@ sub createvm
 	    $VBOXNAME,
 	    "--nic1",     "bridged",
 	    "--nictype1", "82540EM",
-	    "--bridgeadapter1", ${ETHERNET_ADAPTER},
+	    "--bridgeadapter1", "Intel(R) Ethernet Connection I219-LM",
 	);
 
     system ($VBOXMANAGE, "modifyvm",
@@ -152,15 +142,14 @@ sub createvm
 		"--port",       "1",
 		"--device",     "1",
 		"--type",       "dvddrive",
-		"--medium",     $OS_INSTALL_ISO,
+		"--medium",     $UBUNTU_ISO,
 	    );
 
 	system ($VBOXMANAGE, "createmedium",
 		"disk",
 		"--filename", $VM_HDD,
-		"--size",     "2048000",
+		"--size",     "102400",
 		"--format",   "vdi",
-		"--variant",  "Standard",
 	    );
 
     } # End from scratch
@@ -226,20 +215,28 @@ sub finalconfig
 {
     print ("Final Config\n");
 
-    # Add Shared Folders
-    for my $SHARE_NAME (keys %SHARED_FOLDERS) {
+    system ($VBOXMANAGE, "sharedfolder", "add",
+	    $VBOXNAME,
+	    "--name",    "downloads",
+	    "--hostpath", $VM_DOWNLOADS,
+	    "--automount",
+	);
 
-	print ("Adding Shared Folder: ${SHARE_NAME}\n");
+    system ($VBOXMANAGE, "sharedfolder", "add",
+	    $VBOXNAME,
+	    "--name",    "projects",
+	    "--hostpath", $VM_PROJECTS,
+	    "--automount",
+	);
 
-	system ($VBOXMANAGE, "sharedfolder", "add",
-		$VBOXNAME,
-		"--name",     ${SHARE_NAME},
-		"--hostpath", ${SHARED_FOLDERS{$SHARE_NAME}},
-		"--automount",
-	    );
+    system ($VBOXMANAGE, "sharedfolder", "add",
+	    $VBOXNAME,
+	    "--name",     "scripts",
+	    "--hostpath", "$VM_SCRIPTS",
+	    "--automount",
+	);
 
-    }
-
+    # In 18.04.1, shared folders are not automatically showing up
     print ("sudo passwd root; su; #./media/sf_scripts/configure-vm-v${XILINX_VERSION}.sh\n");
 
 }
@@ -269,7 +266,6 @@ sub vm_from_existing_hdd
 	    "e",  "${zip_hdd_file}",
 	    "-o${VM_BASE_FOLDER}/${VBOXNAME}");
 
-    # Get the path to the unzipped hdd
     my $some_dir = "${VM_BASE_FOLDER}/${VBOXNAME}";
     opendir (my $dh, $some_dir);
 
@@ -306,26 +302,14 @@ sub print_usage
     print ("ZIP_HDD_FILE   : Path to existing 7z'd drive to use as OS hdd\n");
 }
 
-######################################################################
-######################################################################
-
 my $new_or_existing = "";
-my $hdd_file        = "";
-
+my $hdd_file   = "";
 
 if ( defined $ARGV[0] && defined $ARGV[1] )
 {
     $new_or_existing = $ARGV[0];
     $zip_hdd_file    = $ARGV[1];
     $hdd_file        = $VM_HDD;
-}
-elsif ( defined $ARGV[0] )
-{
-    $new_or_existing = $ARGV[0];
-    if ( $new_or_existing ne "new" ) {
-	print_usage();
-	exit;
-    }
 }
 else
 {
