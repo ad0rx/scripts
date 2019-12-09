@@ -1,3 +1,5 @@
+# C:\vm\scripts\vm>"c:\Program Files\Oracle\VirtualBox\VBoxManage.exe" guestcontrol "centos-7.6.1810-2019.2" --username user run --exe /usr/bin/ls
+
 use IPC::Run 'run';
 use warnings;
 
@@ -13,14 +15,15 @@ $VBOXMANAGE="c:/Program Files/Oracle/VirtualBox/vboxmanage.exe";
 $VBOX_GUEST_ADDITIONS="c:/Program Files/Oracle/VirtualBox/VBoxGuestAdditions.iso";
 $Z7="c:/Program Files/7-Zip/7z.exe";
 
-$OS_TYPE="Ubuntu_64";
 $VM_BASE_FOLDER="d:/bwhitlock/vm_support/vms";
 $VM_MEMORY_SIZE="8192";
 $VM_VRAM_SIZE="128";
 $VM_CPUS="2";
 $VM_CPUEXECUTION_CAP="100";
 
-$OS_INSTALL_ISO="d:/bwhitlock/vm_support/raw-os-iso/CentOS-7-x86_64-Minimal-1810.iso";
+#$OS_TYPE="Ubuntu_64";
+$OS_TYPE="RedHat_64";
+$OS_INSTALL_ISO="d:/bwhitlock/vm_support/raw-os-iso/CentOS-7-x86_64-DVD-1810.iso";
 
 $VM_HDD_FILENAME="${VBOXNAME}-hdd.vdi";
 $VM_HDD="${VM_BASE_FOLDER}/${VBOXNAME}/${VM_HDD_FILENAME}";
