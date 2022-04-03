@@ -16,6 +16,6 @@ then
 fi
 
 #cd /home/${USER}
-sudo -u ${USER} vncserver -geometry ${GEOM} -depth ${DEPTH} -rfbport 5901 -localhost 
+sudo -u ${USER} vncserver -depth 16 -geometry ${GEOM} -depth ${DEPTH} -rfbport 5901 -localhost
 
 echo; echo "${ME} Complete"
