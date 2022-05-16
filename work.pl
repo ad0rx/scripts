@@ -12,7 +12,8 @@ my @PUTTY_SESSIONS = ("plap", "dkr_via_plap_2022");
 
 my $PUTTY_SESSION ="plap";
 my $PUTTY_SESSION1="dkr_via_plap_2022";
-my $EMACS         ="\"C:/Program Files (x86)/Emacs/i686/bin/runemacs.exe\"";
+#my $EMACS         ="\"C:/Program Files (x86)/Emacs/i686/bin/runemacs.exe\"";
+my $EMACS         ="\"C:/Program Files/Emacs-27.1/x86_64/bin/runemacs.exe\"";
 
 # Git Pull rcfiles
 print ("Performing git pull\n");
