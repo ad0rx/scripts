@@ -1,0 +1,180 @@
+#!/usr/bin/env perl
+# pre-commit
+#
+# Run this script to scan for warnings and errors in RTL that I am
+# responsible for before committing to git
+#
+#
+#
+# For now, given a list of files, create a single output file
+# containing all warnings linked to files under security/
+#
+######################################################################
+# TODO
+# Pre-filter each log file for "Warning" string to reduce input data
+#
+#
+######################################################################
+use warnings;
+use diagnostics;
+use strict;
+use v5.26;
+
+my $TMP_FILE0 = "pre-commit-tmp0";
+my $TMP_FILE1 = "pre-commit-tmp1";
+my $TMP_FILE2 = "pre-commit-final";
+
+#chomp ($a = <STDIN>);
+#say $a;
+
+#my @lines = `ls -lah`;
+#foreach (@lines) {
+#  s/f/BRAD/g;
+#  print;
+#}
+
+#my @lines = <STDIN>;
+#print @lines;
+
+######################################################################
+# Run stb
+# run bdtb
+# once bdtb has created vivado project fork vivado
+# when bdtb and vivado done, check logs
+######################################################################
+# Run stb
+
+# cd to dir
+#> stb | tee stb_out
+# run simulation
+# wait for sim to finish
+# grep for warnings and save to file
+# grep warnings for security rtl files save to another file
+# view this file, fix issues
+
+# Run bdtb
+# cd to dir
+# run bdtb | bdtb_out
+# run simulation
+# wait for sim to finish
+
+# grep for warnings and save to file
+#> grep -A1 -B3 -i warn bdtb_out | tee bdtb_warn
+# for f in $PWS/FPGA/security/hdl/*; do grep -C3 `basename $f` bdtb_warn; done | tee security_warn
+
+# grep warnings for security rtl files save to another file
+# view this file, fix issues
+
+# Run the Vivado TB
+# this one last because takes longest and is most permissive
+# git clean -fxd
+# cd to dir
+# run vivado to recreate_project.tcl
+# select top module
+# run simulation
+# wait for sim to finish
+# grep for warnings and save to file
+# grep warnings for security rtl files save to another file
+# view this file, fix issues
+# Grep for warnings and errors with security files
+
+# Grep for warnings and errors with security files
+
+# Report if clean
+
+
+######################################################################
+# Generalized Flow
+#
+# cd to a dir
+# run a command, capture output
+# grep output files for warnings and errors
+# grep that file for security rtl files
+# view output, or report clean
+# go to next step
+sub run_simulator {
+
+    my ($work_dir) = @_;
+
+    # CD to a dir
+    print ("work_dir: $work_dir\n");
+
+}
+
+# Inputs
+# List of Log Files
+# List of Source Files
+#
+# Outputs
+# File containing warnings from source files
+sub filter_logs_for_strings {
+
+    my $logs    = shift;
+    my $strings = shift;
+
+    #print ("Running filter_logs_for_strings\n");
+    #print ("Logs   : @$logs\n");
+    #print ("Strings: @$strings\n");
+
+    # Iterate over logs
+    foreach my $logFile (@$logs) {
+        print ("\nLogFile: $logFile\n");
+        print ("-------------------\n");
+
+        # Consider pre-filtering the log file for "Warning" string to
+        # reduce input data volume. Def create execution speedup.
+        my $command = "grep -A1 -i \"warning\" $logFile >> $TMP_FILE0";
+        #print ("command: $command\n");
+        system($command);
+
+        # Iterate over strings
+        foreach my $string (@$strings) {
+            #print ("String: $string\n");
+
+            my $command = "grep -A1 $string $logFile >> $TMP_FILE1";
+            #print ("command: $command\n");
+            system($command);
+
+        } # end foreach string
+
+    } # end foreach logFile
+
+    # Clean up final output to contain only warnings
+    my $command = "grep -A1 -i \"warning\" $TMP_FILE1 >> $TMP_FILE2";
+    #print ("command: $command\n");
+    system($command);
+
+
+    print ("\nResults:\n");
+    system ("cat", "$TMP_FILE2");
+    #system ("cat", "$TMP_FILE1");
+
+    system ("rm", "$TMP_FILE0");
+    system ("rm", "$TMP_FILE1");
+    system ("rm", "$TMP_FILE2");
+}
+
+# Inputs
+# Path
+#
+# Outputs
+# Array of file names
+sub get_files_under_path {
+    my $path = shift;
+    #print ("ENTER: get_files_under_dir\n");
+
+    #my @files = `ls -r $path`;
+    my $output = `find \$PWS/FPGA/security/hdl -type f -printf "%f "`;
+    my @files = split (" ", $output);
+    #print ("files: @files\n");
+
+    return @files;
+}
+
+#my @logs    = ("log1", "log2");
+my @logs    = ("bdtb_out");
+
+# Get list of log files from command line
+# Get list of strings by reading security/ directory for file names
+my @fileNames = &get_files_under_path ("\${PWS}/FPGA/security/hdl");
+&filter_logs_for_strings (\@logs, \@fileNames);
