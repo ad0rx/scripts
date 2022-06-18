@@ -126,7 +126,7 @@ sub filter_file_for_strings {
         open (IF, '<', $inFile) or die $!;
 
         # Open the output file
-        open (OF, '>', $outFile) or die $!;
+        open (OF, '>>', $outFile) or die $!;
 
         # While read line
         while (<IF>) {
@@ -149,15 +149,16 @@ sub filter_file_for_strings {
 
                     if (/$tstring/) {
 
-                        print (OF "$tstring\n");
+                        # Print a separator
+                        print (OF "--\n");
+                        print (OF "File   : $inFile\n");
+                        print (OF "Matched: $tstring\n");
                         print (OF);
 
                         # Print the following line as well
                         my $nextLine = <IF>;
                         print (OF $nextLine);
 
-                        # Print a separator
-                        print (OF "--\n");
                         #next;
 
                     } # end if match
@@ -170,9 +171,13 @@ sub filter_file_for_strings {
         # Close input file
         close (IF);
 
+        # Print a separator
+        print (OF "-- End $inFile\n");
+
         # Close output file
         close (OF);
-    }
+
+    } # end foreach inFIle
 }
 
 # Inputs
@@ -246,13 +251,14 @@ sub get_files_under_path {
 }
 
 #my @logs    = ("log1", "log2");
-my @logs    = ("bdtb_out");
+#my @logs    = ("bdtb_out");
+my @logs = @ARGV;
 
 # Get list of log files from command line
 # Get list of strings by reading security/ directory for file names
 my @fileNames = &get_files_under_path ("\${PWS}/FPGA/security/hdl");
 
 &filter_file_for_strings (\@logs, \@fileNames, $TMP_FILE0);
-exit;
 
-&filter_logs_for_strings (\@logs, \@fileNames);
+
+#&filter_logs_for_strings (\@logs, \@fileNames);
