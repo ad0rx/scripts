@@ -101,6 +101,80 @@ sub run_simulator {
 
 }
 
+# open file
+# read a line
+# look for exact string match
+# on first match, write line plus next to output file
+# continue to next line
+#
+# Inputs
+# Array of Files (ref)
+# Array of strings (ref)
+# output file name
+#
+# Outputs
+sub filter_file_for_strings {
+
+    my ($inFiles, $strings, $outFile) = @_;
+
+    foreach my $inFile (@$inFiles) {
+
+        print ("inFile: $inFile\n");
+        print ("outFile: $outFile\n");
+
+        # Open the input file
+        open (IF, '<', $inFile) or die $!;
+
+        # Open the output file
+        open (OF, '>', $outFile) or die $!;
+
+        # While read line
+        while (<IF>) {
+
+            # If this line has 'warning' on it, then test for strings
+            if (/warning/i) {
+
+                #print (OF "\n");
+
+                # Test every string against this line, if match, print the
+                # line to outFile
+                foreach my $string (@$strings) {
+
+                    #print (OF "$string\n");
+
+                    # Modify string so that the '.' matches on period only
+                    my $tstring = $string;
+                    $tstring  =~ s/[.]/[\.]/;
+                    #print (OF "$tstring\n");
+
+                    if (/$tstring/) {
+
+                        print (OF "$tstring\n");
+                        print (OF);
+
+                        # Print the following line as well
+                        my $nextLine = <IF>;
+                        print (OF $nextLine);
+
+                        # Print a separator
+                        print (OF "--\n");
+                        #next;
+
+                    } # end if match
+
+                } # end foreach $string
+
+            } # end unless
+        }
+
+        # Close input file
+        close (IF);
+
+        # Close output file
+        close (OF);
+    }
+}
+
 # Inputs
 # List of Log Files
 # List of Source Files
@@ -177,4 +251,8 @@ my @logs    = ("bdtb_out");
 # Get list of log files from command line
 # Get list of strings by reading security/ directory for file names
 my @fileNames = &get_files_under_path ("\${PWS}/FPGA/security/hdl");
+
+&filter_file_for_strings (\@logs, \@fileNames, $TMP_FILE0);
+exit;
+
 &filter_logs_for_strings (\@logs, \@fileNames);
