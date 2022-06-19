@@ -177,7 +177,17 @@ sub filter_file_for_strings {
         # Close output file
         close (OF);
 
-    } # end foreach inFIle
+    } # end foreach inFile
+
+    # Display final results, from all input files that were filtered
+    open (OF, '<', $outFile) or die $!;
+    while (<OF>) {
+        print;
+    }
+    close(OF);
+
+    # Delete the temporary output file
+    unlink($outFile) or die "Can't delete $outFile: $!\n";
 }
 
 # Inputs
@@ -257,6 +267,3 @@ print ("logs: @logs\n");
 my @fileNames = &get_files_under_path ("\${PWS}/FPGA/security/hdl");
 
 &filter_file_for_strings (\@logs, \@fileNames, $TMP_FILE0);
-
-
-#&filter_logs_for_strings (\@logs, \@fileNames);
