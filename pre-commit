@@ -9,6 +9,8 @@
 # For now, given a list of files, create a single output file
 # containing all warnings linked to files under security/
 #
+# > pre-commit log1 log2 ... logN
+#
 ######################################################################
 # TODO
 # Pre-filter each log file for "Warning" string to reduce input data
@@ -82,8 +84,6 @@ my $TMP_FILE2 = "pre-commit-final";
 
 # Report if clean
 
-
-######################################################################
 # Generalized Flow
 #
 # cd to a dir
@@ -100,6 +100,8 @@ sub run_simulator {
     print ("work_dir: $work_dir\n");
 
 }
+
+######################################################################
 
 # Inputs
 # List of Log Files
@@ -131,7 +133,7 @@ sub filter_logs_for_strings {
         foreach my $string (@$strings) {
             #print ("String: $string\n");
 
-            my $command = "grep -A1 $string $logFile >> $TMP_FILE1";
+            my $command = "grep -A1 $string $TMP_FILE0 >> $TMP_FILE1";
             #print ("command: $command\n");
             system($command);
 
@@ -140,18 +142,17 @@ sub filter_logs_for_strings {
     } # end foreach logFile
 
     # Clean up final output to contain only warnings
-    my $command = "grep -A1 -i \"warning\" $TMP_FILE1 >> $TMP_FILE2";
+    #my $command = "grep -A1 -i \"warning\" $TMP_FILE1 >> $TMP_FILE2";
     #print ("command: $command\n");
-    system($command);
-
+    #system($command);
 
     print ("\nResults:\n");
-    system ("cat", "$TMP_FILE2");
-    #system ("cat", "$TMP_FILE1");
+    #system ("cat", "$TMP_FILE2");
+    system ("cat", "$TMP_FILE1");
 
-    system ("rm", "$TMP_FILE0");
-    system ("rm", "$TMP_FILE1");
-    system ("rm", "$TMP_FILE2");
+    #system ("rm", "$TMP_FILE0");
+    #system ("rm", "$TMP_FILE1");
+    #system ("rm", "$TMP_FILE2");
 }
 
 # Inputs
@@ -171,8 +172,8 @@ sub get_files_under_path {
     return @files;
 }
 
-#my @logs    = ("log1", "log2");
-my @logs    = ("bdtb_out");
+my @logs = @ARGV;
+print ("logs: @logs\n");
 
 # Get list of log files from command line
 # Get list of strings by reading security/ directory for file names
