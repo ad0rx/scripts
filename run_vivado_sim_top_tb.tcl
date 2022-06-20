@@ -36,21 +36,22 @@ generate_target Simulation \
     [get_files ${VIVADO_START_DIR}/bd/bd_top.bd]
 
 export_ip_user_files \
-    -of_objects [get_files ${VIVADO_START_DIR}/bd/bd_top.bd] \
+    -of_objects [get_files ${VIVADO_START_DIR}/bd/bd_top.bd]          \
     -no_script -sync -force -quiet
 
-export_simulation -of_objects                                                    \
-    [get_files ${VIVADO_START_DIR}/bd/bd_top.bd]                                 \
-    -directory ${VPJ}/project_1.ip_user_files/sim_scripts                        \
-    -ip_user_files_dir ${VPJ}/project_1.ip_user_files                            \
-    -ipstatic_source_dir ${VPJ}/project_1.ip_user_files/ipstatic                 \
-    -lib_map_path [list                                                          \
-                       {modelsim=${VPJ}/project_1.cache/compile_simlib/modelsim} \
-                       {questa=${VPJ}/project_1.cache/compile_simlib/questa}     \
-                       {ies=${VPJ}/project_1.cache/compile_simlib/ies}           \
-                       {xcelium=${VPJ}/project_1.cache/compile_simlib/xcelium}   \
-                       {vcs=${VPJ}/project_1.cache/compile_simlib/vcs}           \
-                       {riviera=${VPJ}/project_1.cache/compile_simlib/riviera}]  \
+export_simulation -of_objects                                         \
+    [get_files ${VIVADO_START_DIR}/bd/bd_top.bd]                      \
+    -directory ${VPJ}/project_1.ip_user_files/sim_scripts             \
+    -ip_user_files_dir ${VPJ}/project_1.ip_user_files                 \
+    -ipstatic_source_dir ${VPJ}/project_1.ip_user_files/ipstatic      \
+    -lib_map_path                                                     \
+    [list                                                             \
+         {modelsim=${VPJ}/project_1.cache/compile_simlib/modelsim}    \
+         {questa=${VPJ}/project_1.cache/compile_simlib/questa}        \
+         {ies=${VPJ}/project_1.cache/compile_simlib/ies}              \
+         {xcelium=${VPJ}/project_1.cache/compile_simlib/xcelium}      \
+         {vcs=${VPJ}/project_1.cache/compile_simlib/vcs}              \
+         {riviera=${VPJ}/project_1.cache/compile_simlib/riviera}]     \
     -use_ip_compiled_libs -force -quiet
 
 launch_simulation
