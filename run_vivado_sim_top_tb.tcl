@@ -14,6 +14,7 @@
 # Pull in Environment Variables
 set PWS               $::env(PWS)
 set VIVADO_START_DIR  ${PWS}/FPGA/BusDefenderFirst
+set VPJ               ${VIVADO_START_DIR}/vivado
 set PROJECT_BUILD_TCL ${PWS}/FPGA/BusDefenderFirst/scripts/recreate_project.tcl
 #set VIVADO_EXPORT     $::env(VIVADO_EXPORT)
 #set EXPORT_XIP_TCL    $::env(EXPORT_XIP_TCL)
@@ -32,24 +33,24 @@ source $PROJECT_BUILD_TCL
 # Run the simulation sim_top_tb
 update_compile_order -fileset sources_1
 generate_target Simulation \
-    [get_files ${PWS}/FPGA/BusDefenderFirst/bd/bd_top.bd]
+    [get_files ${VIVADO_START_DIR}/bd/bd_top.bd]
 
 export_ip_user_files \
-    -of_objects [get_files ${PWS}/FPGA/BusDefenderFirst/bd/bd_top.bd] \
+    -of_objects [get_files ${VIVADO_START_DIR}/bd/bd_top.bd] \
     -no_script -sync -force -quiet
 
-export_simulation -of_objects                                                                                 \
-    [get_files ${PWS}/FPGA/BusDefenderFirst/bd/bd_top.bd]                                                     \
-    -directory ${PWS}/FPGA/BusDefenderFirst/vivado/project_1.ip_user_files/sim_scripts                        \
-    -ip_user_files_dir ${PWS}/FPGA/BusDefenderFirst/vivado/project_1.ip_user_files                            \
-    -ipstatic_source_dir ${PWS}/FPGA/BusDefenderFirst/vivado/project_1.ip_user_files/ipstatic                 \
-    -lib_map_path [list                                                                                       \
-                       {modelsim=${PWS}/FPGA/BusDefenderFirst/vivado/project_1.cache/compile_simlib/modelsim} \
-                       {questa=${PWS}/FPGA/BusDefenderFirst/vivado/project_1.cache/compile_simlib/questa}     \
-                       {ies=${PWS}/FPGA/BusDefenderFirst/vivado/project_1.cache/compile_simlib/ies}           \
-                       {xcelium=${PWS}/FPGA/BusDefenderFirst/vivado/project_1.cache/compile_simlib/xcelium}   \
-                       {vcs=${PWS}/FPGA/BusDefenderFirst/vivado/project_1.cache/compile_simlib/vcs}           \
-                       {riviera=${PWS}/FPGA/BusDefenderFirst/vivado/project_1.cache/compile_simlib/riviera}]  \
+export_simulation -of_objects                                                    \
+    [get_files ${VIVADO_START_DIR}/bd/bd_top.bd]                                 \
+    -directory ${VPJ}/project_1.ip_user_files/sim_scripts                        \
+    -ip_user_files_dir ${VPJ}/project_1.ip_user_files                            \
+    -ipstatic_source_dir ${VPJ}/project_1.ip_user_files/ipstatic                 \
+    -lib_map_path [list                                                          \
+                       {modelsim=${VPJ}/project_1.cache/compile_simlib/modelsim} \
+                       {questa=${VPJ}/project_1.cache/compile_simlib/questa}     \
+                       {ies=${VPJ}/project_1.cache/compile_simlib/ies}           \
+                       {xcelium=${VPJ}/project_1.cache/compile_simlib/xcelium}   \
+                       {vcs=${VPJ}/project_1.cache/compile_simlib/vcs}           \
+                       {riviera=${VPJ}/project_1.cache/compile_simlib/riviera}]  \
     -use_ip_compiled_libs -force -quiet
 
 launch_simulation
