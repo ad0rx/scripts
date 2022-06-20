@@ -28,6 +28,9 @@ my $TMP_FILE0 = "pre-commit-tmp0";
 my $TMP_FILE1 = "pre-commit-tmp1";
 my $TMP_FILE2 = "pre-commit-final";
 
+my $bdtb_out   = "bdtb_out";
+my $vivado_out = "vivado_out";
+
 #chomp ($a = <STDIN>);
 #say $a;
 
@@ -116,25 +119,25 @@ sub run_simulations {
     # do this one first because bdtb automatically deletes vivado dir
     my $pid2 = fork ();
     unless ($pid2) {
-        print ("Running Questa Simulation\n");
-        system("bdtb > bdtb_out");
-        print ("Questa Simulation Complete\n");
+        print (" Running Questa Simulation\n");
+        system("bdtb > $bdtb_out");
+        print (" Questa Simulation Complete\n");
         exit();
     }
 
     # Fork Vivado Build
     my $pid1 = fork ();
     unless ($pid1) {
-        print ("Running Vivado Simulation\n");
-        system("vivado -nolog -nojournal -mode tcl -source \${HOME}/scripts/run_vivado_sim_top_tb.tcl > vivado_out");
-        print ("Vivado Simulation Complete\n");
+        print (" Running Vivado Simulation\n");
+        system("vivado -nolog -nojournal -mode tcl -source \${HOME}/scripts/run_vivado_sim_top_tb.tcl > $vivado_out");
+        print (" Vivado Simulation Complete\n");
         exit();
     }
 
     # Join
     print ("waiting on pids\n");
-    wait;
-    wait;
+    wait();
+    wait();
     print ("done waiting\n");
 }
 
@@ -244,13 +247,12 @@ sub get_files_under_path {
     return @files;
 }
 
-my @logs = ("$PWS/bdtb_out", "$PWS/vivado_out");
-print ("logs: @logs\n");
-
 # Kick off the vivado and questa simulations in parallel
 &run_simulations($PWS);
 
-# Get list of log files from command line
 # Get list of strings by reading security/ directory for file names
 my @fileNames = &get_files_under_path ("\${PWS}/FPGA/security/hdl");
+
+# Filter the logs
+my @logs = ("$bdtb_out", "$vivado_out");
 &filter_file_for_strings (\@logs, \@fileNames, $TMP_FILE0);
