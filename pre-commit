@@ -72,18 +72,19 @@ sub run_simulations {
 
     # CD to a dir
     print ("work_dir: $work_dir\n");
-
     chdir ("$work_dir");
-
 
     # Register handler so we can cancel the script if needed
     $SIG{INT} = \&handler;
+
+    print ("Starting bdtb\n");
     my @cmd1 = ("bdtb");
     $bdtbh = start (\@cmd1, \$bdtbSTDIN, ">&", $bdtb_out);
 
     my $HOME = $ENV{"HOME"};
     my @cmd2 = ("vivado", "-nolog", "-nojournal", "-mode", "tcl", "-source", "$HOME/scripts/run_vivado_sim_top_tb.tcl");
     #my @cmd2 = ("vivado", "-help");
+    print ("Starting vivado\n");
     $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);
 
     # Join
