@@ -23,6 +23,9 @@ use strict;
 use v5.26;
 use POSIX ":sys_wait_h";
 
+## Using run() instead of system():
+use IPC::Run qw( start );
+
 my $PWS = $ENV{'PWS'};
 my $TMP_FILE0 = "pre-commit-tmp0";
 my $TMP_FILE1 = "pre-commit-tmp1";
@@ -30,75 +33,34 @@ my $TMP_FILE2 = "pre-commit-final";
 
 my $bdtb_out   = "bdtb_out";
 my $vivado_out = "vivado_out";
+my $bdtbh;
+my $bdtbSTDIN;
+my $vivadoh;
+my $vivadoSTDIN;
 
-#chomp ($a = <STDIN>);
-#say $a;
+# General signal handler for testing
+sub handler {
 
-#my @lines = `ls -lah`;
-#foreach (@lines) {
-#  s/f/BRAD/g;
-#  print;
-#}
+    my $sig = shift;
 
-#my @lines = <STDIN>;
-#print @lines;
+    print ("Caught a signal, shutting down...: $sig\n");
 
-######################################################################
-# Run stb
-# run bdtb
-# once bdtb has created vivado project fork vivado
-# when bdtb and vivado done, check logs
-######################################################################
-# Run stb
+    $vivadoh->signal ("INT");
+    $bdtbh->signal   ("INT");
 
-# cd to dir
-#> stb | tee stb_out
-# run simulation
-# wait for sim to finish
-# grep for warnings and save to file
-# grep warnings for security rtl files save to another file
-# view this file, fix issues
+    print ("waiting for vivado to shutdown\n");
+    print ("this may take about 10 seconds\n");
+    $bdtbSTDIN = "exit 1/n";
+    $bdtbh->pump;
+    $bdtbh->finish;
 
-# Run bdtb
-# cd to dir
-# run bdtb | bdtb_out
-# run simulation
-# wait for sim to finish
+    # Could make this pretty cool by printing last line of $vivado_out
+    # until vivado exits, maybe
+    $vivadoSTDIN = "exit 1/n";
+    $vivadoh->pump;
+    $vivadoh->finish;
 
-# grep for warnings and save to file
-#> grep -A1 -B3 -i warn bdtb_out | tee bdtb_warn
-# for f in $PWS/FPGA/security/hdl/*; do grep -C3 `basename $f` bdtb_warn; done | tee security_warn
-
-# grep warnings for security rtl files save to another file
-# view this file, fix issues
-
-# Run the Vivado TB
-# this one last because takes longest and is most permissive
-# git clean -fxd
-# cd to dir
-# run vivado to recreate_project.tcl
-# select top module
-# run simulation
-# wait for sim to finish
-# grep for warnings and save to file
-# grep warnings for security rtl files save to another file
-# view this file, fix issues
-# Grep for warnings and errors with security files
-
-# Grep for warnings and errors with security files
-
-# Report if clean
-
-# Generalized Flow
-#
-# cd to a dir
-# run a command, capture output
-# grep output files for warnings and errors
-# grep that file for security rtl files
-# view output, or report clean
-# go to next step
-
-
+}
 # Kick off the vivado and questa simulations in parallel
 # Inputs
 # Working dir
@@ -113,31 +75,21 @@ sub run_simulations {
 
     chdir ("$work_dir");
 
-    print ("about to fork\n");
 
-    # Fork bdtb build
-    # do this one first because bdtb automatically deletes vivado dir
-    my $pid2 = fork ();
-    unless ($pid2) {
-        print (" Running Questa Simulation\n");
-        system("bdtb > $bdtb_out");
-        print (" Questa Simulation Complete\n");
-        exit();
-    }
+    # Register handler so we can cancel the script if needed
+    $SIG{INT} = \&handler;
+    my @cmd1 = ("bdtb");
+    $bdtbh = start (\@cmd1, \$bdtbSTDIN, ">&", $bdtb_out);
 
-    # Fork Vivado Build
-    my $pid1 = fork ();
-    unless ($pid1) {
-        print (" Running Vivado Simulation\n");
-        system("vivado -nolog -nojournal -mode tcl -source \${HOME}/scripts/run_vivado_sim_top_tb.tcl > $vivado_out");
-        print (" Vivado Simulation Complete\n");
-        exit();
-    }
+    my $HOME = $ENV{"HOME"};
+    my @cmd2 = ("vivado", "-nolog", "-nojournal", "-mode", "tcl", "-source", "$HOME/scripts/run_vivado_sim_top_tb.tcl");
+    #my @cmd2 = ("vivado", "-help");
+    $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);
 
     # Join
-    print ("waiting on pids\n");
-    wait();
-    wait();
+    print ("waiting on simulations\n");
+    $bdtbh->finish;
+    $vivadoh->finish;
     print ("done waiting\n");
 }
 
