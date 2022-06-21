@@ -82,7 +82,9 @@ sub run_simulations {
     $bdtbh = start (\@cmd1, \$bdtbSTDIN, ">&", $bdtb_out);
 
     my $HOME = $ENV{"HOME"};
-    my @cmd2 = ("vivado", "-nolog", "-nojournal", "-mode", "tcl", "-source", "$HOME/scripts/run_vivado_sim_top_tb.tcl");
+    my @cmd2 = ("vivado", "-notrace", "-nolog", "-nojournal", "-mode",
+                "tcl", "-source",
+                "$HOME/scripts/run_vivado_sim_top_tb.tcl");
     #my @cmd2 = ("vivado", "-help");
     print ("Starting vivado\n");
     $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);

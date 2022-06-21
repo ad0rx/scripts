@@ -28,9 +28,10 @@ cd $VIVADO_START_DIR
 
 # First, build the Vivado project which is defined in a script
 # which is maintained by the FPGA team
-source $PROJECT_BUILD_TCL
+source $PROJECT_BUILD_TCL -notrace
 
 # Run the simulation sim_top_tb
+#start_gui
 update_compile_order -fileset sources_1
 generate_target Simulation \
     [get_files ${VIVADO_START_DIR}/bd/bd_top.bd]
