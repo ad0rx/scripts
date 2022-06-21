@@ -50,13 +50,13 @@ sub handler {
 
     print ("waiting for vivado to shutdown\n");
     print ("this may take about 10 seconds\n");
-    $bdtbSTDIN = "exit 1/n";
+    $bdtbSTDIN = "exit 1\n";
     $bdtbh->pump;
     $bdtbh->finish;
 
     # Could make this pretty cool by printing last line of $vivado_out
     # until vivado exits, maybe
-    $vivadoSTDIN = "exit 1/n";
+    $vivadoSTDIN = "exit 1\n";
     $vivadoh->pump;
     $vivadoh->finish;
 
