@@ -8,12 +8,6 @@
 ######################################################################
 # TODO
 #
-# Appears to be a race condition with bdtb and vivado sim, come up
-# with a way to stall vivado sim thread until bdtb is done with vivado
-# step. See IPC::Run MCPAN documentation and try to implement an
-# output redirection to subroutine. Perform filtering in sub and then
-# write the line to a file for later use by the rest of the script.
-#
 # fix handler so that it still works if bdtb is already
 # complete. probably have to remove bdtbh->finish call or do a check
 # before calling that to make sure the process is still running
@@ -37,8 +31,33 @@ my $bdtb_out   = "bdtb_out";
 my $vivado_out = "vivado_out";
 my $bdtbh;
 my $bdtbSTDIN;
+my $bdtb_using_vivado = 1;
 my $vivadoh;
 my $vivadoSTDIN;
+
+# Output from bdtb arrives here and is printed to $bdtb_out as well as
+# filtered to determine when the vivado build process has
+# completed. This prevents a race condition between bdtb and the
+# vivado simulation, which both access the sources area of the project
+# to write simulation files and various other outputs
+sub bdtb_out_filter {
+
+    my $string = shift;
+
+    # Send output to the file for later use by this script
+    open (OF, ">>", $bdtb_out) or die "unable to open bdtb_out\n";
+    print (OF $string);
+    close (OF);
+
+    # Filter the output to catch when vivado project build completes
+    # This is a semaphore, clearing allows vivado simulation process to start
+    if ($string =~ /Exiting Vivado/) {
+        print ("clearing bdtb_using_vivado\n");
+        $bdtb_using_vivado = 0;
+    }
+
+}
+
 
 # General signal handler for testing
 sub handler {
@@ -89,7 +108,9 @@ sub run_simulations {
 
     print ("Starting bdtb\n");
     my @cmd1 = ("bdtb");
-    $bdtbh = start (\@cmd1, \$bdtbSTDIN, ">&", $bdtb_out);
+    #my @cmd1 = ("ls", "-lah");
+    #$bdtbh = start (\@cmd1, \$bdtbSTDIN, ">&", $bdtb_out);
+    $bdtbh = start (\@cmd1, \$bdtbSTDIN, \&bdtb_out_filter);
 
     my $HOME = $ENV{"HOME"};
     my @cmd2 = ("vivado", "-notrace", "-nolog", "-nojournal", "-mode",
@@ -99,7 +120,11 @@ sub run_simulations {
 
     # Wait for bdtb to clear out of the vivado build state
     # TODO, watch bdtb_out file for signs that Vivado build has completed
-    sleep (180);
+    while ($bdtb_using_vivado) {
+        sleep 1;
+        $bdtbh->pump if $bdtbh->pumpable;
+    }
+
     print ("Starting vivado\n");
     $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);
 
