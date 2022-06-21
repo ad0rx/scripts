@@ -90,7 +90,9 @@ sub run_simulations {
     # Join
     print ("waiting on simulations\n");
     $bdtbh->finish;
+    print ("bdtb complete\n");
     $vivadoh->finish;
+    print ("vivado complete\n");
     print ("done waiting\n");
 }
 

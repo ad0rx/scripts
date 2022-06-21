@@ -10,15 +10,15 @@ termcapinfo xterm* ti@:te@
 screen -t bdtb_out   0
 screen -t vivado_out 1
 
-split -v
+split
 
 # Left pane
-focus left
+focus top
 select 0
 exec tail -f /home/bwhitlock/03_peraton_laptop/bus_defender/bdmca/bdtb_out
 
 # right pane
 # other window
-focus right
+focus bottom
 select 1
 exec tail -f /home/bwhitlock/03_peraton_laptop/bus_defender/bdmca/vivado_out
