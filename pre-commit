@@ -3,18 +3,20 @@
 #
 # Run this script to scan for warnings and errors in RTL that I am
 # responsible for before committing to git
-#
-#
-#
-# For now, given a list of files, create a single output file
-# containing all warnings linked to files under security/
-#
-# > pre-commit log1 log2 ... logN
-#
+# > pre-commit-screen.sh &
+# > pre-commit
 ######################################################################
 # TODO
-# Pre-filter each log file for "Warning" string to reduce input data
 #
+# Appears to be a race condition with bdtb and vivado sim, come up
+# with a way to stall vivado sim thread until bdtb is done with vivado
+# step. See IPC::Run MCPAN documentation and try to implement an
+# output redirection to subroutine. Perform filtering in sub and then
+# write the line to a file for later use by the rest of the script.
+#
+# fix handler so that it still works if bdtb is already
+# complete. probably have to remove bdtbh->finish call or do a check
+# before calling that to make sure the process is still running
 #
 ######################################################################
 use warnings;
@@ -74,6 +76,14 @@ sub run_simulations {
     print ("work_dir: $work_dir\n");
     chdir ("$work_dir");
 
+    # Create the output files, so that the pre-commit-screen.sh script
+    # will be able to tail -f them even before the simulations have
+    # begun running
+    open (OF, ">", $bdtb_out );
+    close (OF);
+    open (OF, ">", $vivado_out);
+    close (OF);
+
     # Register handler so we can cancel the script if needed
     $SIG{INT} = \&handler;
 
@@ -86,6 +96,10 @@ sub run_simulations {
                 "tcl", "-source",
                 "$HOME/scripts/run_vivado_sim_top_tb.tcl");
     #my @cmd2 = ("vivado", "-help");
+
+    # Wait for bdtb to clear out of the vivado build state
+    # TODO, watch bdtb_out file for signs that Vivado build has completed
+    sleep (180);
     print ("Starting vivado\n");
     $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);
 
