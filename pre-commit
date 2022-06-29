@@ -173,6 +173,9 @@ sub run_simulations {
     open (OF, ">", $vivado_out);
     close (OF);
 
+    my @cmd1 = ("pre-commit-screen.sh");
+    my $screenh = start (\@cmd1);
+
     # Register handler so we can cancel the script if needed
     $SIG{INT} = \&handler;
 
@@ -194,7 +197,7 @@ sub run_simulations {
     }
 
     print ("Starting bdtb\n");
-    my @cmd1 = ($bdtb_fixed_path);
+    @cmd1 = ($bdtb_fixed_path);
     $bdtbh = start (\@cmd1, \$bdtbSTDIN, \&bdtb_out_filter);
 
     # Join
@@ -203,6 +206,8 @@ sub run_simulations {
     print ("bdtb complete\n");
     $vivadoh->finish;
     print ("vivado complete\n");
+    print ("waiting on screen\n");
+    $screenh->finish;
     print ("done waiting\n");
 }
 
