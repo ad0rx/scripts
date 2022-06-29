@@ -12,6 +12,10 @@
 # complete. probably have to remove bdtbh->finish call or do a check
 # before calling that to make sure the process is still running
 #
+# Start vivado sim before bdtb because it takes longer than bdtb
+#  add vivado output filter
+#  fixup bdtb script to comment "rmtree vivado" call
+#
 ######################################################################
 use warnings;
 use diagnostics;
@@ -19,7 +23,7 @@ use strict;
 use v5.26;
 use POSIX ":sys_wait_h";
 
-## Using run() instead of system():
+# Using start() instead of system():
 use IPC::Run qw( start );
 
 my $PWS = $ENV{'PWS'};
@@ -34,6 +38,7 @@ my $bdtbSTDIN;
 my $bdtb_using_vivado = 1;
 my $vivadoh;
 my $vivadoSTDIN;
+my $vivado_using_vivado = 1;
 
 # Output from bdtb arrives here and is printed to $bdtb_out as well as
 # filtered to determine when the vivado build process has
@@ -58,6 +63,28 @@ sub bdtb_out_filter {
 
 }
 
+# Output from vivado arrives here and is printed to $vivado_out as well as
+# filtered to determine when the vivado build process has
+# completed. This prevents a race condition between bdtb and the
+# vivado simulation, which both access the sources area of the project
+# to write simulation files and various other outputs.
+sub vivado_out_filter {
+
+    my $string = shift;
+
+    # Send output to the file for later use by this script
+    open (OF, ">>", $vivado_out) or die "unable to open vivado_out\n";
+    print (OF $string);
+    close (OF);
+
+    # Filter the output to catch when vivado project build completes
+    # This is a semaphore, clearing allows vivado simulation process to start
+    if ($string =~ /Exiting Vivado/) {
+        print ("clearing vivado_using_vivado\n");
+        $vivado_using_vivado = 0;
+    }
+
+}
 
 # General signal handler for testing
 sub handler {
@@ -82,6 +109,7 @@ sub handler {
     $vivadoh->finish;
 
 }
+
 # Kick off the vivado and questa simulations in parallel
 # Inputs
 # Working dir
@@ -126,7 +154,8 @@ sub run_simulations {
     }
 
     print ("Starting vivado\n");
-    $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);
+    #$vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);
+    $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", \&vivado_out_filter);
 
     # Join
     print ("waiting on simulations\n");
