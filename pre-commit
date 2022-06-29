@@ -16,6 +16,7 @@
 #  xadd vivado output filter
 #  xfixup bdtb script to comment "rmtree vivado" call
 #  xrm vivado dir from this script at right time
+#  make bdtb_fixed executable
 #  call fixed up version
 #
 ######################################################################
@@ -78,6 +79,7 @@ sub bdtb_fixup {
     close (IF);
     close (OF);
 
+    chmod (0555, $bdtb_fixed_path);
 }
 
 # Output from bdtb arrives here and is printed to $bdtb_out as well as
@@ -175,7 +177,7 @@ sub run_simulations {
     $SIG{INT} = \&handler;
 
     print ("Starting bdtb\n");
-    my @cmd1 = ("bdtb");
+    my @cmd1 = ($bdtb_fixed_path);
     #my @cmd1 = ("ls", "-lah");
     #$bdtbh = start (\@cmd1, \$bdtbSTDIN, ">&", $bdtb_out);
     $bdtbh = start (\@cmd1, \$bdtbSTDIN, \&bdtb_out_filter);
@@ -314,7 +316,6 @@ sub get_files_under_path {
 
 &bdtb_fixup();
 &prepare_environment();
-exit;
 
 # Kick off the vivado and questa simulations in parallel
 &run_simulations($PWS);
