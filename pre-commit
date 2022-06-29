@@ -47,7 +47,7 @@ my $bdtbSTDIN;
 my $bdtb_using_vivado = 1;
 my $vivadoh;
 my $vivadoSTDIN;
-my $vivado_using_vivado = 1;
+my $vivado_is_building_project = 1;
 
 # Make any preparations required before starting simulations
 #
@@ -121,9 +121,9 @@ sub vivado_out_filter {
 
     # Filter the output to catch when vivado project build completes
     # This is a semaphore, clearing allows vivado simulation process to start
-    if ($string =~ /Exiting Vivado/) {
-        print ("clearing vivado_using_vivado\n");
-        $vivado_using_vivado = 0;
+    if ($string =~ /launch_simulation/) {
+        print ("clearing vivado_is_building_project\n");
+        $vivado_is_building_project = 0;
     }
 
 }
@@ -176,28 +176,26 @@ sub run_simulations {
     # Register handler so we can cancel the script if needed
     $SIG{INT} = \&handler;
 
-    print ("Starting bdtb\n");
-    my @cmd1 = ($bdtb_fixed_path);
-    #my @cmd1 = ("ls", "-lah");
-    #$bdtbh = start (\@cmd1, \$bdtbSTDIN, ">&", $bdtb_out);
-    $bdtbh = start (\@cmd1, \$bdtbSTDIN, \&bdtb_out_filter);
-
     my $HOME = $ENV{"HOME"};
     my @cmd2 = ("vivado", "-notrace", "-nolog", "-nojournal", "-mode",
                 "tcl", "-source",
                 "$HOME/scripts/run_vivado_sim_top_tb.tcl");
     #my @cmd2 = ("vivado", "-help");
 
-    # Wait for bdtb to clear out of the vivado build state
-    # TODO, watch bdtb_out file for signs that Vivado build has completed
-    while ($bdtb_using_vivado) {
-        sleep 1;
-        $bdtbh->pump if $bdtbh->pumpable;
-    }
-
     print ("Starting vivado\n");
     #$vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", $vivado_out);
     $vivadoh = start (\@cmd2, \$vivadoSTDIN, ">&", \&vivado_out_filter);
+
+    # Wait for bdtb to clear out of the vivado build state
+    # TODO, watch bdtb_out file for signs that Vivado build has completed
+    while ($vivado_is_building_project) {
+        sleep 1;
+        $vivadoh->pump if $vivadoh->pumpable;
+    }
+
+    print ("Starting bdtb\n");
+    my @cmd1 = ($bdtb_fixed_path);
+    $bdtbh = start (\@cmd1, \$bdtbSTDIN, \&bdtb_out_filter);
 
     # Join
     print ("waiting on simulations\n");
