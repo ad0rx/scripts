@@ -79,7 +79,7 @@ sub bdtb_fixup {
     close (IF);
     close (OF);
 
-    chmod (0555, $bdtb_fixed_path);
+    chmod (0777, $bdtb_fixed_path);
 }
 
 # Output from bdtb arrives here and is printed to $bdtb_out as well as
@@ -92,9 +92,9 @@ sub bdtb_out_filter {
     my $string = shift;
 
     # Send output to the file for later use by this script
-    open (OF, ">>", $bdtb_out) or die "unable to open bdtb_out\n";
-    print (OF $string);
-    close (OF);
+    open  (AOF, ">>", $bdtb_out) or die "unable to open bdtb_out\n";
+    print (AOF $string);
+    close (AOF);
 
     # Filter the output to catch when vivado project build completes
     # This is a semaphore, clearing allows vivado simulation process to start
@@ -115,9 +115,9 @@ sub vivado_out_filter {
     my $string = shift;
 
     # Send output to the file for later use by this script
-    open (OF, ">>", $vivado_out) or die "unable to open vivado_out\n";
-    print (OF $string);
-    close (OF);
+    open  (BOF, ">>", $vivado_out) or die "unable to open vivado_out\n";
+    print (BOF $string);
+    close (BOF);
 
     # Filter the output to catch when vivado project build completes
     # This is a semaphore, clearing allows vivado simulation process to start
