@@ -13,8 +13,9 @@
 # before calling that to make sure the process is still running
 #
 # Start vivado sim before bdtb because it takes longer than bdtb
-#  add vivado output filter
+#  xadd vivado output filter
 #  fixup bdtb script to comment "rmtree vivado" call
+#  call fixed up version
 #
 ######################################################################
 use warnings;
@@ -26,19 +27,53 @@ use POSIX ":sys_wait_h";
 # Using start() instead of system():
 use IPC::Run qw( start );
 
-my $PWS = $ENV{'PWS'};
+my $PWS   = $ENV{'PWS'};
+my $PROOT = $ENV{'PROOT'};
+
 my $TMP_FILE0 = "pre-commit-tmp0";
 my $TMP_FILE1 = "pre-commit-tmp1";
 my $TMP_FILE2 = "pre-commit-final";
 
-my $bdtb_out   = "bdtb_out";
-my $vivado_out = "vivado_out";
+my $bdtb_out         = "bdtb_out";
+my $vivado_out       = "vivado_out";
+my $bdtb_path        = "$PWS/FPGA/BusDefenderFirst/scripts/bdtb";
+my $bdtb_fixed_path  = "$PWS/FPGA/BusDefenderFirst/scripts/bdtb_fixed";
+
 my $bdtbh;
 my $bdtbSTDIN;
 my $bdtb_using_vivado = 1;
 my $vivadoh;
 my $vivadoSTDIN;
 my $vivado_using_vivado = 1;
+
+# Fixup the bdtb script so that it does not remove the vivado project
+# directory. Do this by reading bdtb line-by-line, looking for a regex
+# and then replace matching line with a commented line.
+sub bdtb_fixup {
+
+    #bdtb_path
+    #bdtb_fixed_path
+
+    # Get full path to bdtb
+    # Create temp bdtb
+    ## outside PWS, maybe at PROOT
+
+    # Open the current bdtb script
+    open (IF, "<", $bdtb_path) or die "Unable to open $bdtb_path\n";
+    open (OF, ">", $bdtb_fixed_path) or die "Unable to open $bdtb_fixed_path\n";
+    while (<IF>) {
+
+        # Look for the line that needs to be changed
+        if (/(rmtree \"\$PWS\/FPGA\/BusDefenderFirst\/vivado\";)/) {
+            print "# $1 LINE COMMENTED BY pre-commit SCRIPT\n";
+        } else {
+            print;
+        } # end else
+    } # end while
+    close (IF);
+    close (OF);
+
+}
 
 # Output from bdtb arrives here and is printed to $bdtb_out as well as
 # filtered to determine when the vivado build process has
@@ -271,6 +306,9 @@ sub get_files_under_path {
 
     return @files;
 }
+
+&bdtb_fixup();
+exit;
 
 # Kick off the vivado and questa simulations in parallel
 &run_simulations($PWS);
