@@ -14,7 +14,8 @@
 #
 # Start vivado sim before bdtb because it takes longer than bdtb
 #  xadd vivado output filter
-#  fixup bdtb script to comment "rmtree vivado" call
+#  xfixup bdtb script to comment "rmtree vivado" call
+#  xrm vivado dir from this script at right time
 #  call fixed up version
 #
 ######################################################################
@@ -23,6 +24,7 @@ use diagnostics;
 use strict;
 use v5.26;
 use POSIX ":sys_wait_h";
+use File::Path 'rmtree';
 
 # Using start() instead of system():
 use IPC::Run qw( start );
@@ -45,6 +47,15 @@ my $bdtb_using_vivado = 1;
 my $vivadoh;
 my $vivadoSTDIN;
 my $vivado_using_vivado = 1;
+
+# Make any preparations required before starting simulations
+#
+# 1. Remove existing 'vivado' working dir
+sub prepare_environment {
+
+    rmtree "$PWS/FPGA/BusDefenderFirst/vivado";
+
+}
 
 # Fixup the bdtb script so that it does not remove the vivado project
 # directory. Do this by reading bdtb line-by-line, looking for a regex
@@ -302,6 +313,7 @@ sub get_files_under_path {
 }
 
 &bdtb_fixup();
+&prepare_environment();
 exit;
 
 # Kick off the vivado and questa simulations in parallel
