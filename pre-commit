@@ -37,7 +37,7 @@ my $TMP_FILE2 = "pre-commit-final";
 my $bdtb_out         = "bdtb_out";
 my $vivado_out       = "vivado_out";
 my $bdtb_path        = "$PWS/FPGA/BusDefenderFirst/scripts/bdtb";
-my $bdtb_fixed_path  = "$PWS/FPGA/BusDefenderFirst/scripts/bdtb_fixed";
+my $bdtb_fixed_path  = "$PROOT/bdtb_fixed";
 
 my $bdtbh;
 my $bdtbSTDIN;
@@ -51,13 +51,6 @@ my $vivado_using_vivado = 1;
 # and then replace matching line with a commented line.
 sub bdtb_fixup {
 
-    #bdtb_path
-    #bdtb_fixed_path
-
-    # Get full path to bdtb
-    # Create temp bdtb
-    ## outside PWS, maybe at PROOT
-
     # Open the current bdtb script
     open (IF, "<", $bdtb_path) or die "Unable to open $bdtb_path\n";
     open (OF, ">", $bdtb_fixed_path) or die "Unable to open $bdtb_fixed_path\n";
@@ -65,10 +58,11 @@ sub bdtb_fixup {
 
         # Look for the line that needs to be changed
         if (/(rmtree \"\$PWS\/FPGA\/BusDefenderFirst\/vivado\";)/) {
-            print "# $1 LINE COMMENTED BY pre-commit SCRIPT\n";
+            print (OF "# $1 LINE COMMENTED BY pre-commit SCRIPT\n");
         } else {
-            print;
+            print (OF);
         } # end else
+
     } # end while
     close (IF);
     close (OF);
