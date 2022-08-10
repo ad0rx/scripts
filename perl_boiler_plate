@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+use warnings;
+use diagnostics;
+use strict;
+use v5.32;
+
+#chomp ($a = <STDIN>);
+#say $a;
+
+#my @lines = `ls -lah`;
+#foreach (@lines) {
+#  s/f/BRAD/g;
+#  print;
+#}
+
+my @lines = <STDIN>;
+print @lines;

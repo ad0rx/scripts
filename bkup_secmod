@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Restore:
+# > cd $PWS
+# > tar --strip-components=5 --show-transformed-names -zf ${PROOT}/bdmca.tar.gz
+#
+######################################################################
+source ~/busdefender_env
+
+DATE=`date "+%F-%R:%S"`
+FILE_NAME="bdmca-<DATE>.tar.gz"
+FILE_NAME=${FILE_NAME/\<DATE\>/${DATE}}
+FILE_NAME=${FILE_NAME//\:/.}
+
+TAR_FILE="/media/bwhitlock/BACKUP/${FILE_NAME}"
+echo "TAR_FILE: $TAR_FILE"
+
+tar -czf "${TAR_FILE}" ${PWS}
+echo "tar complete"
+
+#scp ${TAR_FILE} hc14:~/
