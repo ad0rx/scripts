@@ -1,0 +1,91 @@
+#!/usr/bin/env perl
+use warnings;
+use diagnostics;
+use strict;
+use v5.32;
+
+use File::Copy;
+
+#chomp ($a = <STDIN>);
+#say $a;
+
+#my @lines = `ls -lah`;
+#foreach (@lines) {
+#  s/f/BRAD/g;
+#  print;
+#}
+
+#my @lines = <STDIN>;
+#print @lines;
+
+# sudo dmesg
+# fsck /dev/sdb1
+# ls /dev/sdb1
+# mount | grep sdb1
+# cd /media/bwhitlock/5515-A2A9/DCIM/100OLYMP/
+# ls
+# info ls
+# cd ~/tmp/
+# chmod +x getPhotos
+# ./getPhotos
+# mkdir photos
+# ls /media/bwhitlock/5515-A2A9/DCIM/100OLYMP | tee files
+# grep "Aug 31" files | tee files
+# cat files
+# ls /media/bwhitlock/5515-A2A9/DCIM/100OLYMP | tee files
+# grep "Aug 31" files
+# grep "Aug 31" files | tee files1
+# ls
+# cat files
+# cat files1
+# while read file; do cp /media/bwhitlock/5515-A2A9/DCIM/100OLYMP/$file .; done < files1
+# cat files1
+# awk '{print $9}' files1 | tee files2
+# while read file; do cp /media/bwhitlock/5515-A2A9/DCIM/100OLYMP/$file .; done < files2
+# \ls /media/bwhitlock/5515-A2A9/DCIM/100OLYMP | tee files
+# \ls -l /media/bwhitlock/5515-A2A9/DCIM/100OLYMP | tee files
+# grep "Aug 31" files | tee files1
+# cat files1
+# awk '{print $9}' files1 | tee files2
+# while read file; do cp /media/bwhitlock/5515-A2A9/DCIM/100OLYMP/$file .; done < files2
+
+
+# Place to bring photos in
+my $photos_in_dir = "/home/bwhitlock/03_peraton_laptop/tmp/photos1";
+if (-e $photos_in_dir) {
+    print "Removing photo dir\n";
+    rmdir $photos_in_dir or
+        die "Unable to remove dir $photos_in_dir: $!\n";
+}
+mkdir $photos_in_dir or
+    die "Unable to create dir $photos_in_dir: $!\n";
+
+# Determine where the Olympus TG4 has been mounted by consulting dmesg
+my $photos_mount_point="/media/bwhitlock/5515-A2A9/DCIM/100OLYMP";
+
+# Generate list of files for a specific date
+my $date = "Aug 31";
+
+opendir my $dh, $photos_mount_point
+    or die "Unable to open dir: $photos_mount_point: $!\n";
+
+foreach my $file (readdir $dh) {
+
+    print "$file\n";
+    my $lfile = "$photos_mount_point/$file";
+    my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
+        $size, $atime, $mtime, $ctime, $blksize, $blocks)
+        = stat $lfile;
+
+    #print "mtime: $mtime\n";
+    my $localtime = localtime $mtime;
+    #print "localtime: $localtime\n";
+
+    if ($localtime =~ /Aug 31/) {
+        print "File: $file\n";
+        print "Time: $localtime\n";
+        copy ($lfile, "$photos_in_dir/$file") or
+            die "Unable to link $file: $!\n";
+    }
+
+}
