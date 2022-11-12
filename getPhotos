@@ -64,14 +64,17 @@ mkdir $photos_in_dir or
 my $photos_mount_point="/media/bwhitlock/5515-A2A9/DCIM/100OLYMP";
 
 # Generate list of files for a specific date
-my $date = "Aug 31";
+# Make this an array or similar
+#my $date = "Oct[ ]+10";
+#my @date_regex = ( "Oct[ ]+10", "Oct[ ]+9" );
+my @date_regex = ( "Oct[ ]+9" );
 
 opendir my $dh, $photos_mount_point
     or die "Unable to open dir: $photos_mount_point: $!\n";
 
 foreach my $file (readdir $dh) {
 
-    print "$file\n";
+    #print "$file\n";
     my $lfile = "$photos_mount_point/$file";
     my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
         $size, $atime, $mtime, $ctime, $blksize, $blocks)
@@ -81,11 +84,16 @@ foreach my $file (readdir $dh) {
     my $localtime = localtime $mtime;
     #print "localtime: $localtime\n";
 
-    if ($localtime =~ /Aug 31/) {
-        print "File: $file\n";
-        print "Time: $localtime\n";
-        copy ($lfile, "$photos_in_dir/$file") or
-            die "Unable to link $file: $!\n";
-    }
+    foreach my $date (@date_regex) {
 
+        #print ("date: $date\n");
+        if ($localtime =~ /$date/ &&
+            -f $lfile) {
+            print "File: $file\n";
+            print "Time: $localtime\n";
+            copy ($lfile, "$photos_in_dir/$file") or
+                die "Unable to link $file: $!\n";
+        }
+
+    }
 }

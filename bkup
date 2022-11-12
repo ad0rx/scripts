@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+#
+# Todo:
+# Implement a rotatioin scheme
+#  - only delete files in rsync that are not in SRC once ber N cycles
+#
+# Implement an archive scheme
+#  - create tar.gz once per N and keep M tarballs
+#
+######################################################################
+
+DATE=`date "+%F-%R:%S"`
+
+EXCLUDES_FILE=/home/bwhitlock/03_peraton_laptop/scripts/bkup_excludes
+RSYNC_ROOT="/media/bwhitlock/BACKUP/rsync"
+LOG="/home/bwhitlock/03_peraton_laptop/03_bkup"
+
+# Associative Array
+# Key | Value
+# SRC | Dest
+declare -A SRC_DEST_A
+SRC_DEST_A=(
+    "/etc"
+    "${RSYNC_ROOT}"
+
+    "/home"
+    "${RSYNC_ROOT}"
+)
+
+echo "bkup starting..." > ${LOG}
+
+for src in ${!SRC_DEST_A[*]}
+do
+    dest=${SRC_DEST_A[$src]}
+    echo "src : $src"
+    echo "dest: $dest"
+
+    if [ ! -e "$dest" ]
+    then
+        echo "Creating Dest: $dest"
+        mkdir -p $dest
+    fi
+
+    # Perform the rsync
+    rsync -av                                                         \
+          --exclude-from=${EXCLUDES_FILE}                             \
+          --delete-excluded                                           \
+          --delete                                                    \
+          ${src} ${dest} >> ${LOG} 2>&1
+
+done
+
+chown bwhitlock:bwhitlock ${LOG}
+
+echo "bkup exiting..." >> ${LOG}

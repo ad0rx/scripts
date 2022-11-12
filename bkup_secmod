@@ -12,10 +12,13 @@ FILE_NAME="bdmca-<DATE>.tar.gz"
 FILE_NAME=${FILE_NAME/\<DATE\>/${DATE}}
 FILE_NAME=${FILE_NAME//\:/.}
 
+EXCLUDES_FILE=${HOME}/scripts/bkup_secmod_excludes
+
+
 TAR_FILE="/media/bwhitlock/BACKUP/${FILE_NAME}"
 echo "TAR_FILE: $TAR_FILE"
 
-tar -czf "${TAR_FILE}" ${PWS}
+tar -czf "${TAR_FILE}" -X ${EXCLUDES_FILE} ${PWS}
 echo "tar complete"
 
 #scp ${TAR_FILE} hc14:~/

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# quick-n-dirty script to convert bd synth script to something that
+# runs quicker, and requires no license
+#
+# free part: xczu7cg-ffvc1156-2LV-e
+# bd part  : xqzu7ev-ffrc1156-1L-i
+######################################################################
+#report_ip_status
+#upgrade_ip [get_ips {client_int_fifo client_log_fifo host_log_fifo host_log_hd_fifo reg_int_fifo slot_ID_fifo slot_fifo sub_sc_fifo sub_tc_fifo}]
+TCL="${BDF}/scripts/recreate_project.tcl"
+FREE_PART="xczu7cg-ffvc1156-2LV-e"
+BD_PART="xqzu7ev-ffrc1156-1L-i"
+
+# Cleanup from previous run
+rm -rf ${BDF}/.Xil
+rm -rf ${BDF}/vivado
+
+# String replace the bd part for the free part
+sed -i s/${BD_PART}/${FREE_PART}/g ${TCL}
+
+# Insert tcl code that will create a synth run using the
+# RuntimeOptimized strategy
+echo '
+set_property strategy Flow_RuntimeOptimized [get_runs synth_area]
+set_property STEPS.SYNTH_DESIGN.ARGS.KEEP_EQUIVALENT_REGISTERS true [get_runs synth_area]
+set_property strategy Flow_RuntimeOptimized [get_runs impl_area]
+update_compile_order -fileset sources_1
+upgrade_ip [get_ips]
+update_compile_order -fileset sources_1
+
+launch_runs synth_area -jobs 4
+wait_on_run -timeout -1 synth_area
+
+start_gui
+
+' >> ${TCL}
+
+# Run Vivado
+cd ${BDF}
+vivado -mode tcl -source ${TCL}

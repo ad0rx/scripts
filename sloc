@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#
+# sv SLOC under dir
+find $1 -name "*sv" | xargs grep -v "//" | wc -l
