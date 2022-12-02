@@ -12,9 +12,10 @@
 
 DATE=`date "+%F-%R:%S"`
 
-EXCLUDES_FILE=/home/bwhitlock/03_peraton_laptop/scripts/bkup_excludes
-RSYNC_ROOT="/media/bwhitlock/BACKUP/rsync"
-LOG="/home/bwhitlock/03_peraton_laptop/03_bkup"
+EXCLUDES_FILE=/home/brad/scripts/bkup_excludes
+#RSYNC_ROOT="/media/bwhitlock/BACKUP/rsync"
+RSYNC_ROOT="/mnt/BACKUP/rsync"
+LOG="/home/brad/03_bkup"
 
 # Associative Array
 # Key | Value
@@ -51,6 +52,7 @@ do
 
 done
 
-chown bwhitlock:bwhitlock ${LOG}
+#chown bwhitlock:bwhitlock ${LOG}
+chown brad:brad ${LOG}
 
 echo "bkup exiting..." >> ${LOG}
